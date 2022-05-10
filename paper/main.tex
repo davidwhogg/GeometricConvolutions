@@ -1,0 +1,198 @@
+% Copyright 2022 the authors
+
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[letterpaper]{geometry} % because Overleaf is weird.
+\PassOptionsToPackage{hyphens}{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+%TODO: change N to N^3 in the appropriate locations
+% define epsilon, they depend on the dimension
+
+
+% typesetting adjustments
+\makeatletter
+\renewcommand\section{\@startsection {section}{1}{\z@}%
+  {-3.25ex \@plus -1ex \@minus -.2ex}%
+  {1.5ex \@plus .2ex}%
+  {\raggedright\normalfont\large\bfseries}}
+\makeatother
+\setlength{\textwidth}{5.00in}
+\setlength{\oddsidemargin}{3.25in}
+\addtolength{\oddsidemargin}{-0.5\textwidth}
+\setlength{\textheight}{9.40in}
+\setlength{\topmargin}{-0.50in}
+\setlength{\footskip}{0.25in}
+\pagestyle{myheadings}
+\markboth{foo}{Hogg \& Villar / Emulating n-body simulations with equivariant CNNs}
+\newcommand{\figurerule}{\rule[1ex]{\textwidth}{0.2pt}}
+\linespread{1.08}
+\frenchspacing\sloppy\sloppypar\raggedbottom
+
+\title{\bfseries%
+Emulating cosmological n-body simulations with equivariant convolutional neural networks}
+\author{Hogg, Villar, others}
+\date{2022 April}
+
+\begin{document}
+
+\maketitle\thispagestyle{empty}
+
+\section{Introduction}
+
+Cosmological n-body simulations comprise the most computationally expensive part of most contemporary cosmological projects, missions, and experiments (CITE THINGS).
+For this reason, accurate, fast emulators would be of enormous economic and scientific value.
+This point has not gone unnoticed!
+There are now quite a few successful projects implementing such emulators (CITE THINGS).
+
+However, there are dangers involved in emulation of this kind.
+HOGG: Epistemological and ontological problems!
+
+The epistemological problems can be somewhat ameliorated (though not entirely solved) if the emulators are required to obey all of the exact symmetries that the n-body simulations themselves are expected to obey.
+That is what motivates the present project.
+
+HOGG: Summarize here how we are going to proceed, in human language.
+
+\section{Problem setup}
+
+For our purposes, a cosmological simulation is a set of $N^3$ particles $n$ with $1\leq n\leq N^3$, each of which has a (scalar) mass $m_n$, a (vector) position $q_n$, and a (vector) veloctiy $v_n$, and each of which is a function of time (or computed or stored at a set of times $t$).
+The positions $q_n$ live in a cubical 3-torus of side length $L$.
+In the dark-matter-only case, the simulation dynamics depend only on the masses, positions, velocities $\{m_n, q_n, v_n\}_{n=1}^N$, time $t$, Newton's constant $G$, and (hopefully weakly) the number $N^3$ and length $L$.
+
+Because the simulations are designed to describe the evolution of the Universe, the particles begin in a nearly-uniform density state, usually very close to a uniform, torus-filling, cubical lattice.
+The particles begin at a very early time $t$ with tiny (vector) offsets $\Delta q_n$ away from lattice sites $q^{(0)}_n$ such that $q_n = q^{(0)}_n + \Delta q_n$, and tiny (vector) velocities $v_n$.
+In detail these positional offsets and velocities are closely related by something like a Zeldovich approximation.
+
+The uniform, torus-filling, cubical lattice of $N^3$ points $q^{(0)}_n$ can be thought of as a 3-dimensional ``image''.
+Each particle can be thought of as a ``pixel'' in that image.
+At each snapshot of the simulation at time $t$, each pixel has an associated (vector) positional offset $\Delta q_n$, (vector) velocity $v_n$, and a few scalars ($m_n, t, G$ at least).
+In addition to these native scalars, we can produce at each pixel $n$ three additional scalars $q_n^\top q_n, q_n^\top v_n, v_n^\top v_n$, which are the inner products of the vectors with themselves and each other.
+At late times, the simulation shows almost no memory of the initial uniform, torus-filling, cubical lattice.
+However, each particle has an identity $n$ that can be associated with its original lattice location $q^{(0)}_n$, so its properties can be thought of as being encoded in that original lattice-location pixel.
+That is, this is a problem of scalars and vectors on a uniform, cubical lattice in a cubical 3-torus.
+
+There are some exact and approximate symmetries to consider in this problem.
+The approximate symmetries are the fundamental symmetries of classical physics, which include translation, rotation, and parity.
+These symmetries are only approximate in the n-body simulation context, because there is a cubical 3-torus with an orientation and a size, and there is a cubical lattice inside that 3-torus.
+Generators of the exact symmetries are the three torus-axis-aligned spatial rotations by $\pi/2$ and one reflection across one of the three axes of the torus.
+
+\section{Linear geometric convolution operators}
+
+We consider the orthogonal group $O(d)$ and $g\in O(d)$. For our purposes $d$ will be 2 or 3, but everything generalizes.  
+We consider an image $A$ in a cubical $d$-torus with $N$ equally spaced pixels in each dimension ($N^d$ pixels total). Each pixel can contain tensors and pseudotensors (of which scalars, pseudoscalars, vectors, and pseudovectors are particular cases) that we define below.
+Similarly, each linear geometric convolution operator $C$ will be a pixelized cubical image patch with $M$ pixels (with $M$ odd) in each dimension ($M^d$ pixels total) with a tensor or pseudotensor in each pixel, which acts as a linear pixel weight.
+
+For some of the expressions below we will use Ricci and Levi-Civita summation notation (or Einstein summation notation).
+In this notation, tensor products are written in component form, and repeated indices are summed over.
+In this notation, the product of two 2-tensors (represented as two $d\times d$ matrices $A$ and $B$) is written as
+\begin{equation}
+    [A\, B]_{i,j} = [A]_{i,k}\,[B]_{k,j} ~,
+\end{equation}
+where $[A]_{i,k}$ (for example) is the $i,k$ element of matrix $A$, the repeated index $k$ is implicitly summed over the integers from 1 to $d$.
+This notation works for tensor expressions of any order, provided that every index appears either exactly once (so it isn't summed over; in the above expression $i, j$ appear exactly once) or exactly twice (so it is summed over; in the above expression $k$ appears exactly twice). 
+
+\begin{definition}[vectors, $k$-tensors, and the world]
+Let $O(d)$ act on vectors in $\mathbb R^d$ via the canonical action.
+It also acts on lists of vectors $(\mathbb R^d)^n$ by acting on each of the $n$ vectors by the same action.
+It also acts on rank-1 $k$-tensors in $(\mathbb R^d)^{\otimes k}$ by $g\cdot (v_{1}\otimes\ldots \otimes v_k) = g\cdot v_1\otimes \ldots \otimes g\cdot v_k$ and extending linearly to higher-rank tensors made from sums of rank-1 tensors.
+Let $W$ (aka ``the world'') be the comprehensive set of all vectors and tensors that exist.
+Note that $O(d)$ can be seen as acting on the world.
+\end{definition}
+
+One consequence of the above defnitions is that 
+$T\in (\mathbb R^d)^{\otimes k}$ is a $k$-tensor iff (in summation notation)
+$[g\cdot T]_{i_1,\ldots, i_k} = [T]_{j_1,\ldots,j_k}\,[M(g)]_{i_1,j_1}\cdots[M(g)]_{i_k,j_k}$ for all $g\in O(d)$, where $[T]_{i_1, \ldots ,i_k} \in \mathbb R$ is a component of $T$, $[M(g)]_{i,j}\in\mathbb R$ is the $i,j$ element of the matrix representation of $g$, and all the $i_m$ and $j_m$ are indices in the range $1,\ldots,d$.
+For example, a 2-tensor is defined by its transformation property
+$[g\cdot T]_{i,j} = [T]_{k,\ell}\,[M(g)]_{k,i}\,[M(g)]_{\ell,j}$,
+which, in normal matrix notation, is written as
+$g\cdot T = M(g)\,T\,M(g)^\top$.
+
+\begin{definition}[pseudovector and $k$-pseudotensor]
+SOLE CAN WE SAY HERE that these are ``like a vector and like a tensor'' but there is an additonal $\det(g)$ coming in?
+\end{definition}
+
+\begin{definition}[scalar and pseudoscalar]
+We say that $a\in \mathbb R$ is a $0$-tensor or scalar iff $a$ is an invariant of the action.
+Namely, $a(W) = a(g\cdot W)$ for all $g\in O(d)$.
+We say that
+$a\in \mathbb R$ is a $0$-pseudotensor or pseudoscalar iff $a(g \cdot W) = \det(g)\,a(W)$ for all $g\in O(d)$,
+where $\det(g)$ is the determinant of the matrix representation $M(g)$ of $g$.
+\end{definition}
+
+\begin{definition}[outer products of tensors]
+If $a$ is a $k$-tensor and $b$ is a $k'$-tensor, then the outer product $a\otimes b$ is a $(k+k')$-tensor with $[a\otimes b]_{i_1,\ldots,i_{k+k'}} = [a]_{i_1,\ldots,i_k}\,[b]_{i_{k+1},\ldots,i_{k+k'}}$
+Similarly, if $a$ is a $k$-pseudotensor and $b$ is a $k'$-pseudotensor, then $a\otimes b$ is a $(k+k')$-tensor.
+If $a$ is a $k$-tensor and $b$ is a $k'$-pseudotensor, or if $a$ is a $k$-pseudotensor and $b$ is a $k'$-tensor, then $a\otimes b$ is a $(k+k')$-pseudotensor.
+\end{definition}
+
+\begin{definition}[linear geometric convolution]
+Given an image $A$ of geometric objects with $N^d$ pixels, we define its linear convolution with a geometric filter $C$ as follows.
+Each pixel $p$ (numbered $1\leq p\leq N^d$) of the image contains a geometric object $a_p$.
+All of these $N^d$ geometric objects $a_p$ are of the same geometric type ($k$-tensor or $k$-pseudotensor).
+The filter $C$ has side length $M\leq N$, where $M$ is an odd integer, such that it has $M^d$ total pixels.
+Each pixel $m$ (numbered $1\leq m\leq M^d$) of the filter contains a geometric object $w_m$.
+All of these $M^d$ geometric weights $w_m$ are of the same geometric type as well ($k'$-tensor or $k'$-pseudotensor).
+For image pixel $p$ (with $1\leq p\leq N^d$) we take a $M^d$ patch of the image, centered at $p$ with contents $a(p)$ (where we assume that the image is in the $d$-torus, so every pixel centers a $M^d$ patch) and number its pixels $1\leq m\leq M^d$.
+Then the convolution $A\star C$ of the image $A$, evaluated at the central pixel $p$ of the patch $P_p$ (containing pixel values $a(p)_m$ with $1\leq m\leq M^d$) and the filter $C$ is the sum of outer products
+\begin{equation}
+    (A\star C)_p := \sum_{m=1}^{M^d} a(p)_m \otimes w_m.
+\end{equation}
+\end{definition}
+
+If the image pixels $a_m$ are $k$-tensors and the filter weights $w_m$ are $k'$-tensors, or if the image pixels are $k$-pseudotensors and the weights are $k'$-pseudotensors, then the output of the linear filter is an image of $(k+k')$-tensors.
+If the image pixels are $k$-pseudotensors and the weights are $k'$-tensors, or if the image pixels are $k$-tensors and the weights are $k'$-pseudotensors, then the output is an image of $(k+k')$-pseudotensors.
+This linear geometric convolution operation can be followed by contractions with Kroenecker deltas and Levi-Civita symbols to make lower-$k$, but still linear, objects.
+
+Contractions of these objects are possible, including contractions that involve either the (even parity) Kroenecker delta $\delta_{ij}$ or the (odd parity) Levi-Civita symbol $\epsilon_{ijk}$ (in $d=3$ dimensions; $\epsilon_{ij}$ in $d=2$ dimensions; $\epsilon_{ijk\ell}$ in $d=4$ dimensions).
+The Levi-Civita symbol in $d\geq 2$ spatial dimensions is the object with $d$ indices such that if the $d$ indices are not repeated and in cyclic order the value is $+1$ and if the $d$ indices are not repeated and in anti-cyclic order the value is $-1$, and it has the value $0$ in all other cases.
+For an example of how the Levi-Civita symbol is used, in $d=3$ dimensions, the determinant of a $d\times d$ matrix $A$ is given by $\det(A) = [A]_{1,i}\,[A]_{2,j}\,[A]_{3,j}\,\epsilon_{ijk}$ in summation notation.
+Contraction of a $k$-tensor (with $k\geq 2$) with one application of the Kroenecker delta returns a $(k-2)$-tensor.
+Contraction of a $k$-pseudotensor (with $k\geq 2$) with one application of the Kroenecker delta returns a $(k-2)$-pseudotensor where $d$ is the spatial dimension.
+Contraction of a $k$-tensor (with $k\geq (d-1)$) with one application of the Levi-Civita symbol returns a $(k-d+2)$-pseudotensor, because the contractions are structured with the last of the $d$ indices of the Levi-Civita symbol unpaired. SOLE DO WE NEED TO SAY MORE HERE?
+Contraction of a $k$-pseudotensor (with $k\geq (d-1)$) with one application of the Levi-Civita symbol returns a $(k-d+2)$-tensor.
+
+For one example of these contractions, the 2-tensor formed by the outer product of 1-tensors $a$ and $b$ can be contracted with the Kronecker delta to give the standard dot product $[a]_i\,[b]_j\,\delta_{ij}$, which is a 0-tensor or scalar.
+For another example, the same 2-tensor can be contracted with the Levi-Civita symbol to give the standard cross product
+$[a]_i\,[b]_j\,\epsilon_{ijk}$, which is a 1-pseudotensor or pseudovector.
+
+With these definitions we can make geometric filters, take outer products, and contract to make a combinatorically large set of nonlinear geometric convolution operators on images made up of geometric objects.
+But before we go nonlinear, we will go equivariant.
+
+\section{Equivariant linear geometric convolution operators}
+
+We will now create linear convolution operators that are group-equivariant, for groups of reflections, rotations, and translations (on the cubical torus).
+We will construct these equivariant convolution operators by an averaging over group operators, followed by a matrix factorization (singular-value decomposition).
+
+\begin{definition}[Equivariant convolution operator]
+Foo and bar.
+\end{definition}
+
+Given a $k\times k \times k$ patch ($k$ odd), centered on a particular pixel, we can consider the convolution operator with a fixed $k\times k \times k$ filter. The filter in each pixel can contain a tensor or pseudotensor
+
+HOGG: What is a linear convolution operator?
+
+HOGG: What is a linear geometric convolution operator?
+
+HOGG: What would it mean for a linear geometric convolution operator to be equivariant to all relevant groups?
+It's naturally translation-equivariant!
+But then how do we do reflections and rotations?
+Be sure to do scalar, pseudoscalar, vector, pseudovector, 2-tensor, and 2-pseudotensor cases.
+
+HOGG: How does the group act, on the image, and on the linear geometric convolution filter, and both?
+
+\section{Equivariant nonlinear geometric convolutions}
+
+\section{Construction of all equivariant convolution operators}
+
+Group averaging and SVD to get all equivariant linear convolution operators.
+
+Outer products and contractions to get all equivariant nonlinaer convolution operators.
+
+Lots of pretty pictures.
+
+\end{document}
