@@ -99,7 +99,7 @@ This notation works for tensor expressions of any order, provided that every ind
 \begin{definition}[vectors, $k$-tensors, and the world]
 Let $O(d)$ act on vectors in $\mathbb R^d$ via the canonical action.
 It also acts on lists of vectors $(\mathbb R^d)^n$ by acting on each of the $n$ vectors by the same action.
-It also acts on rank-1 $k$-tensors in $(\mathbb R^d)^{\otimes k}$ by $g\cdot (v_{1}\otimes\ldots \otimes v_k) = g\cdot v_1\otimes \ldots \otimes g\cdot v_k$ and extending linearly to higher-rank tensors made from sums of rank-1 tensors.
+It also acts on rank-1 $k$-tensors in $(\mathbb R^d)^{\otimes k}$ by $g\cdot (v_{1}\otimes\ldots \otimes v_k) = (g\cdot v_1)\otimes \ldots \otimes (g\cdot v_k)$ and extending linearly to higher-rank tensors made from sums of rank-1 tensors.
 Let $W$ (aka ``the world'') be the comprehensive set of all vectors and tensors that exist.
 Note that $O(d)$ can be seen as acting on the world.
 \end{definition}
@@ -130,25 +130,29 @@ Similarly, if $a$ is a $k$-pseudotensor and $b$ is a $k'$-pseudotensor, then $a\
 If $a$ is a $k$-tensor and $b$ is a $k'$-pseudotensor, or if $a$ is a $k$-pseudotensor and $b$ is a $k'$-tensor, then $a\otimes b$ is a $(k+k')$-pseudotensor.
 \end{definition}
 
-\begin{definition}[linear geometric convolution]
-Given an image $A$ of geometric objects with $N^d$ pixels, we define its linear convolution with a geometric filter $C$ as follows.
-Each pixel $p$ (numbered $1\leq p\leq N^d$) of the image contains a geometric object $a_p$.
-All of these $N^d$ geometric objects $a_p$ are of the same geometric type ($k$-tensor or $k$-pseudotensor).
-The filter $C$ has side length $M\leq N$, where $M$ is an odd integer, such that it has $M^d$ total pixels.
-Each pixel $m$ (numbered $1\leq m\leq M^d$) of the filter contains a geometric object $w_m$.
-All of these $M^d$ geometric weights $w_m$ are of the same geometric type as well ($k'$-tensor or $k'$-pseudotensor).
-For image pixel $p$ (with $1\leq p\leq N^d$) we take a $M^d$ patch of the image, centered at $p$ with contents $a(p)$ (where we assume that the image is in the $d$-torus, so every pixel centers a $M^d$ patch) and number its pixels $1\leq m\leq M^d$.
-Then the convolution $A\star C$ of the image $A$, evaluated at the central pixel $p$ of the patch $P_p$ (containing pixel values $a(p)_m$ with $1\leq m\leq M^d$) and the filter $C$ is the sum of outer products
+HOGG: Define a geometric image here.
+
+HOGG: Define a geometric filter here. Then shorten the defition below.
+
+\begin{definition}[geometric convolution, geometric convolution filter]
+Let $A$ be a $d$-dimensional image of $N^d$ pixels, in each of which there is a $k$-tensor or $k$-pseudotensor as defined above.
+The image $A$ lives in a cubical $d$-torus such that the image has no boundary.
+Let $C$ be a $d$-dimensional image with $M^d$ pixels (with $M$ odd and $M<N$), in each of which there is a $k'$-tensor or $k'$-pseudotensor.
+We call $C$ a geometric convolution filter.
+The geometric convolution $A\star C$ is a $d$-dimensional image of $N^d$ pixels, in each of which there is a $k+k'$-tensor or $k+k'$-pseudotensor, defined as follows:
+For image pixel $p$ in $A\star C$ (with $1\leq p\leq N^d$) we take the cubical $M^d$ patch of the image centered on pixel $p$ with contents $a(p)$ (the image is on the $d$-torus, so every pixel $p$ centers a $M^d$ patch) and number its pixels $1\leq m\leq M^d$.
+Then the convolution $A\star C$ of the image $A$, evaluated at the central pixel $p$ of the cubical patch (containing pixel values $a(p)_m$ with $1\leq m\leq M^d$) and the filter $C$ is the sum of outer products
 \begin{equation}
-    (A\star C)_p := \sum_{m=1}^{M^d} a(p)_m \otimes w_m.
+    (A\star C)_p := \sum_{m=1}^{M^d} a(p)_m \otimes w_m~.
 \end{equation}
+That is, geometric convolution is the same as ordinary convolution on the $d$-torus except generalized to outer products of tensor and pseudotensor inputs and outputs.
 \end{definition}
 
 If the image pixels $a_m$ are $k$-tensors and the filter weights $w_m$ are $k'$-tensors, or if the image pixels are $k$-pseudotensors and the weights are $k'$-pseudotensors, then the output of the linear filter is an image of $(k+k')$-tensors.
 If the image pixels are $k$-pseudotensors and the weights are $k'$-tensors, or if the image pixels are $k$-tensors and the weights are $k'$-pseudotensors, then the output is an image of $(k+k')$-pseudotensors.
 This linear geometric convolution operation can be followed by contractions with Kroenecker deltas and Levi-Civita symbols to make lower-$k$, but still linear, objects.
 
-Contractions of these objects are possible, including contractions that involve either the (even parity) Kroenecker delta $\delta_{ij}$ or the (odd parity) Levi-Civita symbol $\epsilon_{ijk}$ (in $d=3$ dimensions; $\epsilon_{ij}$ in $d=2$ dimensions; $\epsilon_{ijk\ell}$ in $d=4$ dimensions).
+THIS PARAGRAPH SUX: Contractions of these objects are possible, including contractions that involve either the (even parity) Kroenecker delta $\delta_{ij}$ or the (odd parity) Levi-Civita symbol $\epsilon_{ijk}$ (in $d=3$ dimensions; $\epsilon_{ij}$ in $d=2$ dimensions; $\epsilon_{ijk\ell}$ in $d=4$ dimensions).
 The Levi-Civita symbol in $d\geq 2$ spatial dimensions is the object with $d$ indices such that if the $d$ indices are not repeated and in cyclic order the value is $+1$ and if the $d$ indices are not repeated and in anti-cyclic order the value is $-1$, and it has the value $0$ in all other cases.
 For an example of how the Levi-Civita symbol is used, in $d=3$ dimensions, the determinant of a $d\times d$ matrix $A$ is given by $\det(A) = [A]_{1,i}\,[A]_{2,j}\,[A]_{3,j}\,\epsilon_{ijk}$ in summation notation.
 Contraction of a $k$-tensor (with $k\geq 2$) with one application of the Kroenecker delta returns a $(k-2)$-tensor.
@@ -156,27 +160,50 @@ Contraction of a $k$-pseudotensor (with $k\geq 2$) with one application of the K
 Contraction of a $k$-tensor (with $k\geq (d-1)$) with one application of the Levi-Civita symbol returns a $(k-d+2)$-pseudotensor, because the contractions are structured with the last of the $d$ indices of the Levi-Civita symbol unpaired. SOLE DO WE NEED TO SAY MORE HERE?
 Contraction of a $k$-pseudotensor (with $k\geq (d-1)$) with one application of the Levi-Civita symbol returns a $(k-d+2)$-tensor.
 
-For one example of these contractions, the 2-tensor formed by the outer product of 1-tensors $a$ and $b$ can be contracted with the Kronecker delta to give the standard dot product $[a]_i\,[b]_j\,\delta_{ij}$, which is a 0-tensor or scalar.
+For one example of these contractions, the 2-tensor formed by the outer product of 1-tensors $a$ and $b$ can be contracted with the Kronecker delta to give the standard dot product $a^\top b = [a]_i\,[b]_j\,\delta_{ij}$, which is a 0-tensor or scalar.
 For another example, the same 2-tensor can be contracted with the Levi-Civita symbol to give the standard cross product
-$[a]_i\,[b]_j\,\epsilon_{ijk}$, which is a 1-pseudotensor or pseudovector.
+$[a\times b]_k = [a]_i\,[b]_j\,\epsilon_{ijk}$, which is a 1-pseudotensor or pseudovector.
 
 With these definitions we can make geometric filters, take outer products, and contract to make a combinatorically large set of nonlinear geometric convolution operators on images made up of geometric objects.
 But before we go nonlinear, we will go equivariant.
 
-\section{Equivariant linear geometric convolution operators}
+\section{Equivariant geometric convolution operators}
 
 We will now create linear convolution operators that are group-equivariant, for groups of reflections, rotations, and translations (on the cubical torus).
 We will construct these equivariant convolution operators by an averaging over group operators, followed by a matrix factorization (singular-value decomposition).
 
+\begin{definition}[Group $B_d$ of symmetries of a $d$- hypercube]
+We denote by $B_d$ the group of rotation and reflection symmetries of the $d$-dimensional hypercube.
+\end{definition}
+
+Notes about the group $B_d$: In $d=2$ there are $8$ group elements, in $d=3$ there are $48$ group elements (and in $d=4$ there are 384). Because the groups $B_d$ are subgroups of $O(d)$, all determinants of the matrix representations of the group elements are either $+1$ or $-1$, and the matrix representation $M(g^{-1})$ of the inverse $g^{-1}$ of group element $g$ is the transpose of the matrix representation $M(g)$ of group element $g$.
+
+\begin{definition}[Action of $B_d$ on $k$-tensors and $k$-pseudotensors]
+\begin{align}
+\mbox{$k$-tensor:} ~~ g\cdot(v_1 \otimes \ldots \otimes v_k) &= (g\cdot v_1)\otimes\ldots\otimes(g\cdot v_k) \\
+\mbox{$k$-pseudotensor:} ~~ g\cdot(v_1 \otimes \ldots \otimes v_k) &= \det(g)\,(g\cdot v_1)\otimes\ldots\otimes(g\cdot v_k) ~,
+\end{align}
+And extend linearly
+\end{definition}
+
+This may seem familiar: The $k$-tensor and $k$-pseudotensor were defined by how they transform under the orthogonal group $O(d)$, and our group $B_d$ is a subgroup of the orthogonal group.
+
+\begin{definition}[Action of $B_d$ on geometric images]
+Given $A$ a cubic $N^d$ image with a $k$-tensor in each pixel, and $g\in B_d$ we define $g\cdot A$ a $N^d$-dimensional image with $k$-tensors in each pixel such that
+\begin{equation}
+    (g\cdot A)_p = g\cdot A_{g^{-1}\cdot p}
+\end{equation}
+\end{definition}
+
+\begin{definition}[The total group $G_d$ in play]
+Outer product of the above group and discrete translations on the $d$-cubic lattice.
+\end{definition}
+
 \begin{definition}[Equivariant convolution operator]
-Foo and bar.
+A geometric convolution filter $C$ is equivariant if it is an equivariant function with respect to the action above. 
 \end{definition}
 
 Given a $k\times k \times k$ patch ($k$ odd), centered on a particular pixel, we can consider the convolution operator with a fixed $k\times k \times k$ filter. The filter in each pixel can contain a tensor or pseudotensor
-
-HOGG: What is a linear convolution operator?
-
-HOGG: What is a linear geometric convolution operator?
 
 HOGG: What would it mean for a linear geometric convolution operator to be equivariant to all relevant groups?
 It's naturally translation-equivariant!
@@ -185,9 +212,9 @@ Be sure to do scalar, pseudoscalar, vector, pseudovector, 2-tensor, and 2-pseudo
 
 HOGG: How does the group act, on the image, and on the linear geometric convolution filter, and both?
 
-\section{Equivariant nonlinear geometric convolutions}
+\section{Nonlinear equivariant local geometric operators}
 
-\section{Construction of all equivariant convolution operators}
+\section{Construction of all equivariant operators}
 
 Group averaging and SVD to get all equivariant linear convolution operators.
 
