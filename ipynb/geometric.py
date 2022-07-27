@@ -1,4 +1,10 @@
 import numpy as np
+import pylab as plt
+import matplotlib.cm as cm
+from matplotlib.colors import ListedColormap
+import itertools as it
+
+TINY = 1.e-5
 
 # ------------------------------------------------------------------------------
 # PART 1: Make and test a complete group
@@ -151,7 +157,7 @@ class geometric_filter:
 
     def make_pixels_and_keys(self):
         foo = range(-self.m, self.m + 1)
-        self._pixels = np.array([pp for pp in it.product(foo, repeat=D)]).astype(int)
+        self._pixels = np.array([pp for pp in it.product(foo, repeat=self.D)]).astype(int)
         self._keys = [self.hash(pp) for pp in self._pixels]
         return
 
@@ -265,7 +271,7 @@ def setup_plot():
     fig = plt.figure(figsize=FIGSIZE)
     return fig
 
-def finish_plot(title, pixels):
+def finish_plot(title, pixels, D):
     plt.title(title)
     if D == 2:
         plt.xlim(np.min(pixels)-0.5, np.max(pixels)+0.5)
@@ -295,6 +301,8 @@ def fill_boxes(xs, ys, ws, vmin, vmax, cmap, zorder=-100, colorbar=False):
 def plot_scalars(xs, ys, ws, boxes=True, fill=True, symbols=True,
                  vmin=0., vmax=5., cmap=cmap, colorbar=False,
                  norm_fill=False):
+    M = np.sqrt(len(xs)).astype(int)
+    assert len(xs) == M * M
     if boxes:
         plot_boxes(xs, ys)
     if fill:
@@ -325,7 +333,7 @@ def plot_scalar_filter(filter, title):
         elif filter.D == 3:
             xs[i], ys[i] = pp[0] + XOFF * pp[2], pp[1] + XOFF * pp[2]
     plot_scalars(xs, ys, ws, norm_fill=True)
-    finish_plot(title, filter.pixels())
+    finish_plot(title, filter.pixels(), filter.D)
 
 def plot_vectors(xs, ys, ws, boxes=True, fill=True,
                  vmin=0., vmax=10., cmap=cmap, scaling=0.33):
@@ -355,12 +363,12 @@ def plot_vector_filter(filter, title):
         elif filter.D == 3:
             xs[i], ys[i] = pp[0] + XOFF * pp[2], pp[1] + YOFF * pp[2]
     plot_vectors(xs, ys, ws)
-    finish_plot(title, filter.pixels())
+    finish_plot(title, filter.pixels(), filter.D)
 
 # ------------------------------------------------------------------------------
 # PART 4: Use group averaging to find unique invariant filters.
 
-def get_unique_invariant_filters(M, k, parity, D):
+def get_unique_invariant_filters(M, k, parity, D, operators):
 
     # make the seed filters
     tmp = geometric_filter.zeros(M, k, parity, D)
@@ -383,7 +391,7 @@ def get_unique_invariant_filters(M, k, parity, D):
     filter_matrix = np.zeros(bigshape)
     for i, f1 in enumerate(allfilters):
         ff = geometric_filter.zeros(M, k, parity, D)
-        for gg in group_operators:
+        for gg in operators:
             ff = ff + f1.times_group_element(gg)
         filter_matrix[i] = ff.unpack().flatten()
 
@@ -433,8 +441,9 @@ class geometric_image:
         return tuple(np.remainder(pixel.astype(int), self.N))
 
     def make_pixels_and_keys(self):
-        self._pixels = np.array([pp for pp in it.product(range(self.N),
-                                                         repeat=D)]).astype(int)
+        self._pixels = np.array([pp for pp in
+                                 it.product(range(self.N),
+                                            repeat=self.D)]).astype(int)
         self._keys = [self.hash(pp) for pp in self._pixels]
         return
 
@@ -534,12 +543,15 @@ def setup_image_plot():
     ff = plt.figure(figsize=(8, 6))
     return ff
 
-def plot_scalar_image(image):
+def plot_scalar_image(image, vmin=None, vmax=None):
     ff = setup_image_plot()
     plotdata = np.array([[pp[0], pp[1], image[kk].data]
                          for kk, pp in zip(image.keys(), image.pixels())])
     plt.gca().set_aspect("equal", adjustable="box")
-    vmin, vmax = np.percentile(plotdata[:, 2], [2.5, 97.5])
+    if vmin is None:
+        vmin = np.percentile(plotdata[:, 2],  2.5)
+    if vmax is None:
+        vmax = np.percentile(plotdata[:, 2], 97.5)
     plot_scalars(plotdata[:, 0], plotdata[:, 1], plotdata[:, 2],
                  symbols=False, vmin=vmin, vmax=vmax, colorbar=True)
     image_axis(plotdata)
