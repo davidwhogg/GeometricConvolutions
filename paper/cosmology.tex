@@ -100,11 +100,33 @@ HOGG: Differences between continuous and discrete symmetries.
 
 HOGG: Summarize here how we are going to proceed, in human language.
 
+\section{Problem setup}\label{sec:setup}
+
+For our purposes, a cosmological simulation is a set of $N^3$ particles $n$ with $1\leq n\leq N^3$, each of which has a (scalar) mass $m_n$, a (vector) position $q_n$, and a (vector) veloctiy $v_n$, and each of which is a function of time (or computed or stored at a set of times $t$).
+The positions $q_n$ live in a cubical 3-torus of side length $L$.
+In the dark-matter-only case, the simulation dynamics depend only on the masses, positions, velocities $\{m_n, q_n, v_n\}_{n=1}^N$, time $t$, Newton's constant $G$, and (hopefully weakly) the number $N^3$ and length $L$.
+
+Because the simulations are designed to describe the evolution of the Universe, the particles begin in a nearly-uniform density state, usually very close to a uniform, torus-filling, cubical lattice.
+The particles begin at a very early time $t$ with tiny (vector) offsets $\Delta q_n$ away from lattice sites $q^{(0)}_n$ such that $q_n = q^{(0)}_n + \Delta q_n$, and tiny (vector) velocities $v_n$.
+In detail these positional offsets and velocities are closely related by something like a Zeldovich approximation.
+
+The uniform, torus-filling, cubical lattice of $N^3$ points $q^{(0)}_n$ can be thought of as a 3-dimensional ``image''.
+Each particle can be thought of as a ``pixel'' in that image.
+At each snapshot of the simulation at time $t$, each pixel has an associated (vector) positional offset $\Delta q_n$, (vector) velocity $v_n$, and a few scalars ($m_n, t, G$ at least).
+In addition to these native scalars, we can produce at each pixel $n$ three additional scalars $q_n^\top q_n, q_n^\top v_n, v_n^\top v_n$, which are the inner products of the vectors with themselves and each other.
+At late times, the simulation shows almost no memory of the initial uniform, torus-filling, cubical lattice.
+However, each particle has an identity $n$ that can be associated with its original lattice location $q^{(0)}_n$, so its properties can be thought of as being encoded in that original lattice-location pixel.
+That is, this is a problem of scalars and vectors on a uniform, cubical lattice in a cubical 3-torus.
+
+There are some exact and approximate symmetries to consider in this problem.
+The approximate symmetries are the fundamental symmetries of classical physics, which include translation, rotation, and parity.
+These symmetries are only approximate in the n-body simulation context, because there is a cubical 3-torus with an orientation and a size, and there is a cubical lattice inside that 3-torus.
+Generators of the exact symmetries are the three torus-axis-aligned spatial rotations by $\pi/2$ and one reflection across one of the three axes of the torus.
 
 \section{Geometric convolutions}\label{sec:convolution}
 
 We consider the orthogonal group $O(d)$ and $g\in O(d)$. For our purposes $d$ will be 2 or 3, but everything generalizes.  
-We consider an image $A$ in a $d$-torus with $N$ equally spaced pixels in each dimension ($N^d$ pixels total). Each pixel can contain tensors and pseudotensors (of which scalars, pseudoscalars, vectors, and pseudovectors are particular cases) that we define below.
+We consider an image $A$ in a cubical $d$-torus with $N$ equally spaced pixels in each dimension ($N^d$ pixels total). Each pixel can contain tensors and pseudotensors (of which scalars, pseudoscalars, vectors, and pseudovectors are particular cases) that we define below.
 Similarly, each linear geometric convolution operator $C$ will be a pixelized cubical image patch with $M$ pixels (with $M$ odd) in each dimension ($M^d$ pixels total) with a tensor or pseudotensor in each pixel, which acts as a linear pixel weight.
 
 For some of the expressions below we will use Ricci and Levi-Civita summation notation (or Einstein summation notation).
@@ -116,13 +138,12 @@ In this notation, the product of two 2-tensors (represented as two $d\times d$ m
 where $[A]_{i,k}$ (for example) is the $i,k$ element of matrix $A$, the repeated index $k$ is implicitly summed over the integers from 1 to $d$.
 This notation works for tensor expressions of any order, provided that every index appears either exactly once (so it isn't summed over; in the above expression $i, j$ appear exactly once) or exactly twice (so it is summed over; in the above expression $k$ appears exactly twice). 
 
-\begin{definition}[$O(d)$ action on vectors and $k$-tensors] \label{def.tensors}
+\begin{definition}[vectors, $k$-tensors, and the world]
 Let $O(d)$ act on vectors in $\mathbb R^d$ via the canonical action.
+It also acts on lists of vectors $(\mathbb R^d)^n$ by acting on each of the $n$ vectors by the same action.
 It also acts on rank-1 $k$-tensors in $(\mathbb R^d)^{\otimes k}$ by $g\cdot (v_{1}\otimes\ldots \otimes v_k) = (g\cdot v_1)\otimes \ldots \otimes (g\cdot v_k)$ and extending linearly to higher-rank tensors made from sums of rank-1 tensors.
-
-It also acts on lists of $k$-tensors $((\mathbb R^d)^{\otimes k})^n$ by acting on each of the $n$ $k$-tensors by the same action.
-%Let $W$ (aka ``the world'') be the comprehensive set of all vectors and tensors that exist.
-%Note that $O(d)$ can be seen as acting on the world.
+Let $W$ (aka ``the world'') be the comprehensive set of all vectors and tensors that exist.
+Note that $O(d)$ can be seen as acting on the world.
 \end{definition}
 
 One consequence of the above definitions is that 
@@ -133,17 +154,16 @@ $[g\cdot T]_{i,j} = [T]_{k,\ell}\,[M(g)]_{k,i}\,[M(g)]_{\ell,j}$,
 which, in normal matrix notation, is written as
 $g\cdot T = M(g)\,T\,M(g)^\top$.
 
+\begin{definition}[pseudovector and $k$-pseudotensor]
+SOLE CAN WE SAY HERE that these are ``like a vector and like a tensor'' but there is an additonal $\det(g)$ coming in?
+\end{definition}
 
-\begin{definition}[scalars and pseudoscalars]
+\begin{definition}[scalar and pseudoscalar]
 We say that $a\in \mathbb R$ is a $0$-tensor or scalar iff $a$ is an invariant of the action.
 Namely, $a(W) = a(g\cdot W)$ for all $g\in O(d)$.
 We say that
 $a\in \mathbb R$ is a $0$-pseudotensor or pseudoscalar iff $a(g \cdot W) = \det(g)\,a(W)$ for all $g\in O(d)$,
 where $\det(g)$ is the determinant of the matrix representation $M(g)$ of $g$.
-\end{definition}
-
-\begin{definition}[pseudovectors and $k$-pseudotensors]
-We say that $T\in (\mathbb R^d)^{\otimes k}$ if a $k$-pseudotensor if it is acted by $O(d)$ by the following action: $g\odot T = \det(g)\, g \cdot T$ where $g\cdot T$ is the cannonical action on tensors as in Definition \ref{def.tensor} these are ``like a vector and like a tensor'' but there is an additonal $\det(g)$ coming in?
 \end{definition}
 
 \begin{definition}[outer products of tensors]
