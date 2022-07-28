@@ -312,7 +312,7 @@ def fill_boxes(ax, xs, ys, ws, vmin, vmax, cmap, zorder=-100, colorbar=False):
         ax.fill_between([x - 0.5, x + 0.5], [y - 0.5, y - 0.5], [y + 0.5, y + 0.5],
                              color=c, zorder=zorder)
 
-def plot_scalars(ax, M, D, xs, ys, ws, boxes=True, fill=True, symbols=True,
+def plot_scalars(ax, M, xs, ys, ws, boxes=True, fill=True, symbols=True,
                  vmin=0., vmax=5., cmap=cmap, colorbar=False,
                  norm_fill=False):
     if boxes:
@@ -346,7 +346,7 @@ def plot_scalar_filter(filter, title, ax=None):
             xs[i], ys[i] = pp
         elif filter.D == 3:
             xs[i], ys[i] = pp[0] + XOFF * pp[2], pp[1] + XOFF * pp[2]
-    plot_scalars(ax, filter.M, filter.D, xs, ys, ws, norm_fill=True)
+    plot_scalars(ax, filter.M, xs, ys, ws, norm_fill=True)
     finish_plot(ax, title, filter.pixels(), filter.D)
 
 def plot_vectors(ax, xs, ys, ws, boxes=True, fill=True,
@@ -356,10 +356,14 @@ def plot_vectors(ax, xs, ys, ws, boxes=True, fill=True,
     if fill:
         fill_boxes(ax, xs, ys, np.sum(np.abs(ws), axis=-1), vmin, vmax, cmap)
     for x, y, w in zip(xs, ys, ws):
-        if np.sum(w * w) > TINY:
+        normw = np.linalg.norm(w)
+        if normw > TINY:
             ax.arrow(x - scaling * w[0], y - scaling * w[1],
                      2 * scaling * w[0], 2 * scaling * w[1],
-                     length_includes_head=True, head_width=0.1, color="k")
+                     length_includes_head=True,
+                     head_width= 0.24 * scaling * normw,
+                     head_length=0.72 * scaling * normw,
+                     color="k")
 
 def plot_vector_filter(filter, title, ax=None):
     assert filter.k == 1
@@ -396,7 +400,8 @@ def plot_filters(filters, name):
             plot_scalar_filter(ff, "{} {}".format(name, i), ax=ax)
         if ff.k == 1:
             plot_vector_filter(ff, "{} {}".format(name, i), ax=ax)
-    return
+    return fig
+
 # ------------------------------------------------------------------------------
 # PART 4: Use group averaging to find unique invariant filters.
 
@@ -588,7 +593,7 @@ def plot_scalar_image(image, vmin=None, vmax=None, ax=None):
         vmin = np.percentile(plotdata[:, 2],  2.5)
     if vmax is None:
         vmax = np.percentile(plotdata[:, 2], 97.5)
-    plot_scalars(ax, plotdata[:, 0], plotdata[:, 1], plotdata[:, 2],
+    plot_scalars(ax, image.N, plotdata[:, 0], plotdata[:, 1], plotdata[:, 2],
                  symbols=False, vmin=vmin, vmax=vmax, colorbar=True)
     image_axis(ax, plotdata)
     return ax
