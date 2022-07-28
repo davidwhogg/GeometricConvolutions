@@ -8,8 +8,10 @@ TBD
 - David W. Hogg (NYU)
 
 ## To-do items:
+- Fix sizing of multi-filter plots.
 - Need to implement index permutation operation.
 - Need to implement Levi-Civita contraction.
+- Make all monomial images.
 """
 
 import numpy as np
