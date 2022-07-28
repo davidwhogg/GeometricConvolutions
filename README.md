@@ -1,5 +1,5 @@
-# EmuCosmoSim
-emulating cosmological simulations with group-equivariant convolutional deep learning
+# Geometric Convolutions
+group-equivariant convolutional deep learning
 
 ## Authors
 - **David W. Hogg** (NYU) (MPIA) (Flatiron)
@@ -10,4 +10,4 @@ Copyright 2022 the authors. All **text** (in `.txt` and `.tex` and `.bib` files)
 
 ## Projects
 - Make nonlinear, group-equivariant, geometric convolution operators.
-- Apply these to cosmological-simulation problems.
+- Apply these to cosmological-simulation problems, perhaps.
