@@ -58,7 +58,7 @@
 \setlength{\topmargin}{-0.50in}
 \setlength{\footskip}{0.25in}
 \pagestyle{myheadings}
-\markboth{foo}{Hogg \& Villar /Geometric filters for geometric images}
+\markboth{foo}{Hogg, Blum-Smith, \& Villar /Geometric filters for geometric images}
 \newcommand{\figurerule}{\rule[1ex]{\textwidth}{0.2pt}}
 \linespread{1.08}
 \frenchspacing\sloppy\sloppypar\raggedbottom
@@ -66,8 +66,8 @@
 \title{\bfseries%
 Equivariant convolution-based functions
 on tensor fields}
-\author{Hogg, Villar, Blum-Smith, others}
-\date{2022 June}
+\author{David W. Hogg, Ben Blum-Smith, and Soledad Villar}
+\date{}
 
 \begin{document}
 
@@ -116,13 +116,10 @@ In this notation, the product of two 2-tensors (represented as two $d\times d$ m
 where $[A]_{i,k}$ (for example) is the $i,k$ element of matrix $A$, the repeated index $k$ is implicitly summed over the integers from 1 to $d$.
 This notation works for tensor expressions of any order, provided that every index appears either exactly once (so it isn't summed over; in the above expression $i, j$ appear exactly once) or exactly twice (so it is summed over; in the above expression $k$ appears exactly twice). 
 
-\begin{definition}[$O(d)$ action on vectors and $k$-tensors] \label{def.tensors}
-Let $O(d)$ act on vectors in $\mathbb R^d$ via the canonical action.
-It also acts on rank-1 $k$-tensors in $(\mathbb R^d)^{\otimes k}$ by $g\cdot (v_{1}\otimes\ldots \otimes v_k) = (g\cdot v_1)\otimes \ldots \otimes (g\cdot v_k)$ and extending linearly to higher-rank tensors made from sums of rank-1 tensors.
-
-It also acts on lists of $k$-tensors $((\mathbb R^d)^{\otimes k})^n$ by acting on each of the $n$ $k$-tensors by the same action.
-%Let $W$ (aka ``the world'') be the comprehensive set of all vectors and tensors that exist.
-%Note that $O(d)$ can be seen as acting on the world.
+\begin{definition}[vectors, scalars, and $k$-tensors] \label{def.tensors}
+We say that $v\in \mathbb R^d$ is a vector (or 1-tensor) if $O(d)$ acts on $v$ via the canonical action. Namely, for any $g\in O(d)$ we have $g\cdot v = M(g)\, v$ where $M(g)\in \mathbb R^{d\times d}$ is the the matrix representation of $g$. We say that $a\in \mathbb R$ is a scalar (or 0-tensor) if $O(d)$ acts trivially on $a$. Namely $g\cdot a = a$.
+We say that $T\in (\mathbb R^d)^{\otimes k}$ is a $k$-tensor if $O(d)$ acts on $T$ as follows:
+$O(d)$ acts on a rank-1 $k$-tensor by $g\cdot (v_{1}\otimes\ldots \otimes v_k) = (g\cdot v_1)\otimes \ldots \otimes (g\cdot v_k)$ and it acts on higher rank tensors by linearly extending the actions to linear combinations of such rank-1 $k$-tensors.
 \end{definition}
 
 One consequence of the above definitions is that 
@@ -134,16 +131,9 @@ which, in normal matrix notation, is written as
 $g\cdot T = M(g)\,T\,M(g)^\top$.
 
 
-\begin{definition}[scalars and pseudoscalars]
-We say that $a\in \mathbb R$ is a $0$-tensor or scalar iff $a$ is an invariant of the action.
-Namely, $a(W) = a(g\cdot W)$ for all $g\in O(d)$.
-We say that
-$a\in \mathbb R$ is a $0$-pseudotensor or pseudoscalar iff $a(g \cdot W) = \det(g)\,a(W)$ for all $g\in O(d)$,
-where $\det(g)$ is the determinant of the matrix representation $M(g)$ of $g$.
-\end{definition}
 
-\begin{definition}[pseudovectors and $k$-pseudotensors]
-We say that $T\in (\mathbb R^d)^{\otimes k}$ if a $k$-pseudotensor if it is acted by $O(d)$ by the following action: $g\odot T = \det(g)\, g \cdot T$ where $g\cdot T$ is the cannonical action on tensors as in Definition \ref{def.tensors}.
+\begin{definition}[pseudovectors, pseudoscalars, and $k$-pseudotensors]
+We say that $B\in (\mathbb R^d)^{\otimes k}$ if a $k$-pseudotensor if it is acted by $O(d)$ by the following action: $g\odot B := \det(g)\, g \cdot B$ where $g\cdot B$ is the canonical action on $k$-tensors as in Definition \ref{def.tensors}. The pseudovectors and pseudoscalars are the 1-pseudotensors and 0-pseudotensors respectively.
 \end{definition}
 
 \begin{definition}[outer products of tensors]
@@ -160,7 +150,10 @@ Let $a$ be a $k$-tensor in $\mathbb R^d$ with $k\geq 2$ such that $[a]_{i_1,\ldo
 \end{definition}
 
 \begin{definition}[permutations of tensor indices]
-MSV WRITE THIS.
+Given a $k$-tensor or $k$-pseudotensor $T\in (\mathbb R^d)^{\otimes k}$ and $\sigma\in S_k$ a permutation. We consider $T^\sigma$ the result of permuting the indices of $T$ according to $\sigma$:
+\begin{equation}
+    [T^\sigma]_{i_1, \ldots, i_k} := [T]_{\sigma^{-1}(i_1), \ldots, \sigma^{-1}(i_k)}
+\end{equation}
 \end{definition}
 
 \begin{definition}[$k$-tensor image]
@@ -294,8 +287,14 @@ This product can be subsequently contracted $r$ times to deliver a $K$-tensor ge
 A polynomial local geometric operator is a function that takes a $k$-tensor image $A$ and outputs the sum of $K$-tensor images constructed as contractions to order $K$ of tensor images from \eqref{monomial} with filters chosen by the user. 
 \end{definition}
 
-\section{Construction of equivariant geometric convolution filters}
+\section{Expressive power of this architecture}
+We can express all linear translation equivariant functions (by just using convolutions assuming filters are same size of the image). 
 
+We can cite that convolutions with small patches may be seen as low pass filters in some way. Reference?
+
+
+
+\section{Construction of equivariant geometric convolution filters}
 In the above we defined nonlinear equivariant geometric operators acting on $d$-dimensional images on the $d$-torus.
 These, in turn, are constructed from products of the outputs of equivariant geometric convolution filters.
 Here we show how to find all such filters by a group-averaging technique.
