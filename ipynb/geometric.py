@@ -1,3 +1,17 @@
+"""
+# Core code for GeometricConvolutions
+
+## License:
+TBD
+
+## Authors:
+- David W. Hogg (NYU)
+
+## To-do items:
+- Need to implement index permutation operation.
+- Need to implement Levi-Civita contraction.
+"""
+
 import numpy as np
 import pylab as plt
 import matplotlib.cm as cm
@@ -271,58 +285,58 @@ def setup_plot():
     fig = plt.figure(figsize=FIGSIZE)
     return fig
 
-def finish_plot(title, pixels, D):
-    plt.title(title)
+def finish_plot(ax, title, pixels, D):
+    ax.set_title(title)
     if D == 2:
-        plt.xlim(np.min(pixels)-0.5, np.max(pixels)+0.5)
-        plt.ylim(np.min(pixels)-0.5, np.max(pixels)+0.5)
+        ax.set_xlim(np.min(pixels)-0.5, np.max(pixels)+0.5)
+        ax.set_ylim(np.min(pixels)-0.5, np.max(pixels)+0.5)
     if D == 3:
-        plt.xlim(np.min(pixels)-0.75, np.max(pixels)+0.75)
-        plt.ylim(np.min(pixels)-0.75, np.max(pixels)+0.75)
-    plt.gca().set_aspect("equal")
-    plt.gca().set_xticks([])
-    plt.gca().set_yticks([])
+        ax.set_xlim(np.min(pixels)-0.75, np.max(pixels)+0.75)
+        ax.set_ylim(np.min(pixels)-0.75, np.max(pixels)+0.75)
+    ax.set_aspect("equal")
+    ax.set_xticks([])
+    ax.set_yticks([])
 
-def plot_boxes(xs, ys):
+def plot_boxes(ax, xs, ys):
     for x, y in zip(xs, ys):
-        plt.plot([x-0.5, x-0.5, x+0.5, x+0.5, x-0.5],
+        ax.plot([x-0.5, x-0.5, x+0.5, x+0.5, x-0.5],
                  [y-0.5, y+0.5, y+0.5, y-0.5, y-0.5], "k-", lw=0.5)
 
-def fill_boxes(xs, ys, ws, vmin, vmax, cmap, zorder=-100, colorbar=False):
+def fill_boxes(ax, xs, ys, ws, vmin, vmax, cmap, zorder=-100, colorbar=False):
     cmx = cm.ScalarMappable(cmap=cmap)
     cmx.set_clim(vmin, vmax)
     cs = cmx.to_rgba(ws)
     if colorbar:
-        plt.colorbar(cmx)
+        plt.colorbar(cmx, ax=ax)
     for x, y, c in zip(xs, ys, cs):
-        plt.fill_between([x - 0.5, x + 0.5], [y - 0.5, y - 0.5], [y + 0.5, y + 0.5],
+        ax.fill_between([x - 0.5, x + 0.5], [y - 0.5, y - 0.5], [y + 0.5, y + 0.5],
                              color=c, zorder=zorder)
 
-def plot_scalars(xs, ys, ws, boxes=True, fill=True, symbols=True,
+def plot_scalars(ax, M, D, xs, ys, ws, boxes=True, fill=True, symbols=True,
                  vmin=0., vmax=5., cmap=cmap, colorbar=False,
                  norm_fill=False):
-    M = np.sqrt(len(xs)).astype(int)
-    assert len(xs) == M * M
     if boxes:
-        plot_boxes(xs, ys)
+        plot_boxes(ax, xs, ys)
     if fill:
         if norm_fill:
             nws = np.abs(ws)
         else:
             nws = ws
-        fill_boxes(xs, ys, nws, vmin, vmax, cmap, colorbar=colorbar)
+        fill_boxes(ax, xs, ys, nws, vmin, vmax, cmap, colorbar=colorbar)
     if symbols:
-        plt.scatter(xs[ws > TINY], ys[ws > TINY],
+        ax.scatter(xs[ws > TINY], ys[ws > TINY],
                     marker="+", c="k", s=(1000/M)*ws[ws > TINY])
-        plt.scatter(xs[ws < TINY], ys[ws < TINY],
+        ax.scatter(xs[ws < TINY], ys[ws < TINY],
                     marker="_", c="k", s=(-1000/M)*ws[ws < TINY])
 
-def plot_scalar_filter(filter, title):
+def plot_scalar_filter(filter, title, ax=None):
     assert filter.k == 0
     if filter.D not in [2, 3]:
         print("plot_scalar_filter(): Only works for D in [2, 3].")
         return
-    setup_plot()
+    if ax is None:
+        fig = setup_plot()
+        ax = fig.gca()
     MtotheD = filter.M ** filter.D
     xs, ys, zs = np.zeros(MtotheD), np.zeros(MtotheD), np.zeros(MtotheD)
     ws = np.zeros(MtotheD)
@@ -332,27 +346,29 @@ def plot_scalar_filter(filter, title):
             xs[i], ys[i] = pp
         elif filter.D == 3:
             xs[i], ys[i] = pp[0] + XOFF * pp[2], pp[1] + XOFF * pp[2]
-    plot_scalars(xs, ys, ws, norm_fill=True)
-    finish_plot(title, filter.pixels(), filter.D)
+    plot_scalars(ax, filter.M, filter.D, xs, ys, ws, norm_fill=True)
+    finish_plot(ax, title, filter.pixels(), filter.D)
 
-def plot_vectors(xs, ys, ws, boxes=True, fill=True,
+def plot_vectors(ax, xs, ys, ws, boxes=True, fill=True,
                  vmin=0., vmax=10., cmap=cmap, scaling=0.33):
     if boxes:
-        plot_boxes(xs, ys)
+        plot_boxes(ax, xs, ys)
     if fill:
-        fill_boxes(xs, ys, np.sum(np.abs(ws), axis=-1), vmin, vmax, cmap)
+        fill_boxes(ax, xs, ys, np.sum(np.abs(ws), axis=-1), vmin, vmax, cmap)
     for x, y, w in zip(xs, ys, ws):
         if np.sum(w * w) > TINY:
-            plt.arrow(x - scaling * w[0], y - scaling * w[1],
-                      2 * scaling * w[0], 2 * scaling * w[1],
-                      length_includes_head=True, head_width=0.1, color="k")
+            ax.arrow(x - scaling * w[0], y - scaling * w[1],
+                     2 * scaling * w[0], 2 * scaling * w[1],
+                     length_includes_head=True, head_width=0.1, color="k")
 
-def plot_vector_filter(filter, title):
+def plot_vector_filter(filter, title, ax=None):
     assert filter.k == 1
     if filter.D not in [2, 3]:
         print("plot_vector_filter(): Only works for D in [2, 3].")
         return
-    setup_plot()
+    if ax is None:
+        fig = setup_plot()
+        ax = fig.gca()
     MtotheD = filter.M ** filter.D
     xs, ys, zs = np.zeros(MtotheD), np.zeros(MtotheD), np.zeros(MtotheD)
     ws = np.zeros((MtotheD, filter.D))
@@ -362,9 +378,25 @@ def plot_vector_filter(filter, title):
             xs[i], ys[i] = pp
         elif filter.D == 3:
             xs[i], ys[i] = pp[0] + XOFF * pp[2], pp[1] + YOFF * pp[2]
-    plot_vectors(xs, ys, ws)
-    finish_plot(title, filter.pixels(), filter.D)
+    plot_vectors(ax, xs, ys, ws)
+    finish_plot(ax, title, filter.pixels(), filter.D)
 
+def plot_filters(filters, name):
+    n = len(filters)
+    if n == 0:
+        return
+    bar = 3 # inches?
+    fig, axes = plt.subplots(1, n, figsize = (bar * n, bar * 1.1))
+    if n == 1:
+        axes = [axes, ]
+    foo = 0.1 / n # fractional?
+    plt.subplots_adjust(left=foo/2, right=1-foo/2, wspace=foo, hspace=foo)
+    for i, (ff, ax) in enumerate(zip(filters, axes)):
+        if ff.k == 0:
+            plot_scalar_filter(ff, "{} {}".format(name, i), ax=ax)
+        if ff.k == 1:
+            plot_vector_filter(ff, "{} {}".format(name, i), ax=ax)
+    return
 # ------------------------------------------------------------------------------
 # PART 4: Use group averaging to find unique invariant filters.
 
@@ -543,34 +575,41 @@ def setup_image_plot():
     ff = plt.figure(figsize=(8, 6))
     return ff
 
-def plot_scalar_image(image, vmin=None, vmax=None):
-    ff = setup_image_plot()
+def plot_scalar_image(image, vmin=None, vmax=None, ax=None):
+    assert image.D == 2
+    assert image.k == 0
+    if ax is None:
+        ff = setup_image_plot()
+        ax = ff.gca()
     plotdata = np.array([[pp[0], pp[1], image[kk].data]
                          for kk, pp in zip(image.keys(), image.pixels())])
-    plt.gca().set_aspect("equal", adjustable="box")
+    ax.set_aspect("equal", adjustable="box")
     if vmin is None:
         vmin = np.percentile(plotdata[:, 2],  2.5)
     if vmax is None:
         vmax = np.percentile(plotdata[:, 2], 97.5)
-    plot_scalars(plotdata[:, 0], plotdata[:, 1], plotdata[:, 2],
+    plot_scalars(ax, plotdata[:, 0], plotdata[:, 1], plotdata[:, 2],
                  symbols=False, vmin=vmin, vmax=vmax, colorbar=True)
-    image_axis(plotdata)
+    image_axis(ax, plotdata)
+    return ax
 
-def image_axis(plotdata):
-    plt.xlim(np.min(plotdata[:, 0])-0.5, np.max(plotdata[:, 0])+0.5)
-    plt.ylim(np.min(plotdata[:, 1])-0.5, np.max(plotdata[:, 1])+0.5)
-    plt.gca().set_aspect("equal")
-    plt.gca().set_xticks([])
-    plt.gca().set_yticks([])
+def image_axis(ax, plotdata):
+    ax.set_xlim(np.min(plotdata[:, 0])-0.5, np.max(plotdata[:, 0])+0.5)
+    ax.set_ylim(np.min(plotdata[:, 1])-0.5, np.max(plotdata[:, 1])+0.5)
+    ax.set_aspect("equal")
+    ax.set_xticks([])
+    ax.set_yticks([])
 
-def plot_vector_image(image, overplot=False):
+def plot_vector_image(image, ax=None):
     assert image.D == 2
-    if not overplot:
-        setup_image_plot()
+    assert image.k == 1
+    if ax is None:
+        ff = setup_image_plot()
+        ax = ff.gca()
     plotdata = np.array([[pp[0], pp[1], image[kk].data[0], image[kk].data[1]]
                          for kk, pp in zip(image.keys(), image.pixels())])
-    plot_vectors(plotdata[:, 0], plotdata[:, 1], plotdata[:, 2:4],
+    plot_vectors(ax, plotdata[:, 0], plotdata[:, 1], plotdata[:, 2:4],
                  boxes=True, fill=False)
-    image_axis(plotdata)
-
+    image_axis(ax, plotdata)
+    return ax
 
