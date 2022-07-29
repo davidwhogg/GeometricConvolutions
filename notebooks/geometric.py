@@ -81,6 +81,18 @@ def test_group(operators):
 
 class ktensor:
 
+    def name(k, parity):
+        nn = "tensor"
+        if k == 0:
+            nn = "scalar"
+        if k == 1:
+            nn = "vector"
+        if parity < 0:
+            nn = "pseudo" + nn
+        if k > 1:
+            nn = "${}$-".format(k) + nn
+        return nn
+
     def __init__(self, data, parity, D):
         self.D = D
         assert self.D > 1, \
@@ -287,22 +299,29 @@ def setup_plot():
     fig = plt.figure(figsize=FIGSIZE)
     return fig
 
+def nobox(ax):
+    # ax.set_xticks([])
+    # ax.set_yticks([])
+    ax.axis("off")
+    return
+
 def finish_plot(ax, title, pixels, D):
     ax.set_title(title)
     if D == 2:
-        ax.set_xlim(np.min(pixels)-0.5, np.max(pixels)+0.5)
-        ax.set_ylim(np.min(pixels)-0.5, np.max(pixels)+0.5)
+        ax.set_xlim(np.min(pixels)-0.55, np.max(pixels)+0.55)
+        ax.set_ylim(np.min(pixels)-0.55, np.max(pixels)+0.55)
     if D == 3:
         ax.set_xlim(np.min(pixels)-0.75, np.max(pixels)+0.75)
         ax.set_ylim(np.min(pixels)-0.75, np.max(pixels)+0.75)
     ax.set_aspect("equal")
-    ax.set_xticks([])
-    ax.set_yticks([])
+    nobox(ax)
+    return
 
 def plot_boxes(ax, xs, ys):
     for x, y in zip(xs, ys):
         ax.plot([x-0.5, x-0.5, x+0.5, x+0.5, x-0.5],
-                 [y-0.5, y+0.5, y+0.5, y-0.5, y-0.5], "k-", lw=0.5)
+                 [y-0.5, y+0.5, y+0.5, y-0.5, y-0.5], "k-", lw=0.5, zorder=10)
+    return
 
 def fill_boxes(ax, xs, ys, ws, vmin, vmax, cmap, zorder=-100, colorbar=False):
     cmx = cm.ScalarMappable(cmap=cmap)
@@ -313,6 +332,7 @@ def fill_boxes(ax, xs, ys, ws, vmin, vmax, cmap, zorder=-100, colorbar=False):
     for x, y, c in zip(xs, ys, cs):
         ax.fill_between([x - 0.5, x + 0.5], [y - 0.5, y - 0.5], [y + 0.5, y + 0.5],
                              color=c, zorder=zorder)
+    return
 
 def plot_scalars(ax, M, xs, ys, ws, boxes=True, fill=True, symbols=True,
                  vmin=0., vmax=5., cmap=cmap, colorbar=False,
@@ -326,10 +346,15 @@ def plot_scalars(ax, M, xs, ys, ws, boxes=True, fill=True, symbols=True,
             nws = ws
         fill_boxes(ax, xs, ys, nws, vmin, vmax, cmap, colorbar=colorbar)
     if symbols:
+        height = ax.get_window_extent().height
+        ss = (5 * height / M) * np.abs(ws)
         ax.scatter(xs[ws > TINY], ys[ws > TINY],
-                    marker="+", c="k", s=(1000/M)*ws[ws > TINY])
-        ax.scatter(xs[ws < TINY], ys[ws < TINY],
-                    marker="_", c="k", s=(-1000/M)*ws[ws < TINY])
+                   marker="+", c="k",
+                   s=ss[ws > TINY], zorder=100)
+        ax.scatter(xs[ws < -TINY], ys[ws < -TINY],
+                   marker="_", c="k",
+                   s=ss[ws < -TINY], zorder=100)
+    return
 
 def plot_scalar_filter(filter, title, ax=None):
     assert filter.k == 0
@@ -350,6 +375,7 @@ def plot_scalar_filter(filter, title, ax=None):
             xs[i], ys[i] = pp[0] + XOFF * pp[2], pp[1] + XOFF * pp[2]
     plot_scalars(ax, filter.M, xs, ys, ws, norm_fill=True)
     finish_plot(ax, title, filter.pixels(), filter.D)
+    return ax
 
 def plot_vectors(ax, xs, ys, ws, boxes=True, fill=True,
                  vmin=0., vmax=10., cmap=cmap, scaling=0.33):
@@ -365,7 +391,8 @@ def plot_vectors(ax, xs, ys, ws, boxes=True, fill=True,
                      length_includes_head=True,
                      head_width= 0.24 * scaling * normw,
                      head_length=0.72 * scaling * normw,
-                     color="k")
+                     color="k", zorder=100)
+    return
 
 def plot_vector_filter(filter, title, ax=None):
     assert filter.k == 1
@@ -386,22 +413,30 @@ def plot_vector_filter(filter, title, ax=None):
             xs[i], ys[i] = pp[0] + XOFF * pp[2], pp[1] + YOFF * pp[2]
     plot_vectors(ax, xs, ys, ws)
     finish_plot(ax, title, filter.pixels(), filter.D)
+    return ax
 
-def plot_filters(filters, name):
-    n = len(filters)
-    if n == 0:
-        return
-    bar = 3 # inches?
-    fig, axes = plt.subplots(1, n, figsize = (bar * n, bar * 1.1))
+def plot_no_filter(ax):
+    ax.set_title(" ")
+    nobox(ax)
+    return
+
+def plot_filters(filters, names, n):
+    assert len(filters) <= n
+    bar = 10. # figure width in inches?
+    fig, axes = plt.subplots(1, n, figsize = (bar, 1.1 * bar / n))
     if n == 1:
         axes = [axes, ]
-    foo = 0.1 / n # fractional?
-    plt.subplots_adjust(left=foo/2, right=1-foo/2, wspace=foo, hspace=foo)
-    for i, (ff, ax) in enumerate(zip(filters, axes)):
+    bar = 0.2
+    foo = bar / n # fractional?
+    plt.subplots_adjust(left=foo/2, right=1-foo/2, wspace=foo,
+                        bottom=bar/2, top=1-bar/2, hspace=bar)
+    for i, (ff, name) in enumerate(zip(filters, names)):
         if ff.k == 0:
-            plot_scalar_filter(ff, "{} {}".format(name, i), ax=ax)
+            plot_scalar_filter(ff, name, ax=axes[i])
         if ff.k == 1:
-            plot_vector_filter(ff, "{} {}".format(name, i), ax=ax)
+            plot_vector_filter(ff, name, ax=axes[i])
+    for i in range(len(filters), n):
+        plot_no_filter(axes[i])
     return fig
 
 # ------------------------------------------------------------------------------
