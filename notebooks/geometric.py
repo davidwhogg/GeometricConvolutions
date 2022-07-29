@@ -423,13 +423,13 @@ def plot_no_filter(ax):
 def plot_filters(filters, names, n):
     assert len(filters) <= n
     bar = 10. # figure width in inches?
-    fig, axes = plt.subplots(1, n, figsize = (bar, 1.1 * bar / n))
+    fig, axes = plt.subplots(1, n, figsize = (bar, 0.1 + bar / n)) # magic
     if n == 1:
         axes = [axes, ]
     bar = 0.2
     foo = bar / n # fractional?
     plt.subplots_adjust(left=foo/2, right=1-foo/2, wspace=foo,
-                        bottom=bar/2, top=1-bar/2, hspace=bar)
+                        bottom=foo)
     for i, (ff, name) in enumerate(zip(filters, names)):
         if ff.k == 0:
             plot_scalar_filter(ff, name, ax=axes[i])
