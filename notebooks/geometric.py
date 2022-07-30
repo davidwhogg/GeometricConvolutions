@@ -378,11 +378,15 @@ def plot_scalar_filter(filter, title, ax=None):
     return ax
 
 def plot_vectors(ax, xs, ys, ws, boxes=True, fill=True,
-                 vmin=0., vmax=10., cmap=cmap, scaling=0.33):
+                 vmin=0., vmax=10., cmap=cmap, scaling=None):
     if boxes:
         plot_boxes(ax, xs, ys)
     if fill:
-        fill_boxes(ax, xs, ys, np.sum(np.abs(ws), axis=-1), vmin, vmax, cmap)
+        fill_boxes(ax, xs, ys, np.linalg.norm(ws, axis=-1), vmin, vmax, cmap)
+    if scaling is None:
+        nws = np.linalg.norm(ws, axis=-1)
+        I = nws > TINY
+        scaling = 0.33 / np.median(nws[I])
     for x, y, w in zip(xs, ys, ws):
         normw = np.linalg.norm(w)
         if normw > TINY:
@@ -655,3 +659,9 @@ def plot_vector_image(image, ax=None):
     image_axis(ax, plotdata)
     return ax
 
+def plot_image(image, **kwargs):
+    assert image.D == 2
+    if image.k == 0:
+        plot_scalar_image(image, **kwargs)
+    if image.k == 1:
+        plot_vector_image(image, **kwargs)
