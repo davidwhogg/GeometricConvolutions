@@ -378,7 +378,7 @@ def plot_scalar_filter(filter, title, ax=None):
     return ax
 
 def plot_vectors(ax, xs, ys, ws, boxes=True, fill=True,
-                 vmin=0., vmax=10., cmap=cmap, scaling=None):
+                 vmin=0., vmax=5., cmap=cmap, scaling=None):
     if boxes:
         plot_boxes(ax, xs, ys)
     if fill:
