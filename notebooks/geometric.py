@@ -229,8 +229,8 @@ class geometric_filter:
         return newfilter
 
     def __str__(self):
-        return "<geometric filter object in D={} with M={}, k={}, and parity={}>".format(
-            self.D, self.M, self.k, self.parity)
+        return "<geometric filter object in D={} with M={} (m={}), k={}, and parity={}>".format(
+            self.D, self.M, self.m, self.k, self.parity)
 
     def times_group_element(self, gg):
         newfilter = self.copy()
