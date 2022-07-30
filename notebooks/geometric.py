@@ -617,7 +617,7 @@ def setup_image_plot():
     ff = plt.figure(figsize=(8, 6))
     return ff
 
-def plot_scalar_image(image, vmin=None, vmax=None, ax=None):
+def plot_scalar_image(image, vmin=None, vmax=None, ax=None, colorbar=False):
     assert image.D == 2
     assert image.k == 0
     if ax is None:
@@ -631,7 +631,7 @@ def plot_scalar_image(image, vmin=None, vmax=None, ax=None):
     if vmax is None:
         vmax = np.percentile(plotdata[:, 2], 97.5)
     plot_scalars(ax, image.N, plotdata[:, 0], plotdata[:, 1], plotdata[:, 2],
-                 symbols=False, vmin=vmin, vmax=vmax, colorbar=True)
+                 symbols=False, vmin=vmin, vmax=vmax, colorbar=colorbar)
     image_axis(ax, plotdata)
     return ax
 
