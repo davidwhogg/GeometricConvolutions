@@ -330,15 +330,21 @@ In detail, group averaging happens HOW? That is, what is the exact mathematical 
 \caption{All the filters for $d=2$, $m=2$. HOGG: notes!}
 \end{figure}
 
-Show all the filters for $d=2$, $M=5$.
-
-Show all the filters for $d=3$, $M=3$.
-
 Give a table saying how many filters there are for each $d$ and each $M$ at each $k$ and each parity.
 
 Now show some fake-data geometric images and show the action of the $d=2$, $M=3$ filters on those images.
 
+\begin{figure}
+    \includegraphics[width=\textwidth]{notebooks/monomials_1.png}
+    \caption{A scalar image $s$ and convolutions with four chosen filters.}
+\end{figure}
+
 Now show contractions of products of the above on those images.
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{notebooks/monomials_2.png}
+    \caption{All unconvolved second-degree monomials of $s$, given four chosen filters. For the 2-tensor outputs (order $k=2$), we traced them back to scalars.}
+\end{figure}
 
 \section{Implementation notes}
 \begin{itemize}
@@ -359,5 +365,8 @@ Now show contractions of products of the above on those images.
 Note that we never take eigenvalues. But these are also real scalars in some cases.
 
 Note that pseudo-$k$-tensor filters only exist for certain triples of $(d, m, k)$.
+
+\paragraph{Acknowlegements:}
+This project made use of Python, numpy, matplotlib, and cmastro. 
 
 \end{document}
