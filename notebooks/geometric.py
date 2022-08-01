@@ -404,6 +404,47 @@ def plot_vector_filter(filter, title, ax=None):
     finish_plot(ax, title, filter.pixels(), filter.D)
     return ax
 
+Rx = np.array([[-1.0, -1.0, 1.0, 1.0, -1.0, 0.0,  1.0],
+               [-1.5,  1.5, 1.5, 0.2, -0.2, 0.0, -1.5]])
+
+def plot_one_tensor(ax, x, y, T, color="k", zorder=0, scaling=0.2):
+    dx, dy = scaling * T @ Rx
+    ax.plot(x + dx, y + dy, ls="-", color=color)
+    return
+
+def plot_tensors(ax, xs, ys, ws, boxes=True, fill=True,
+                 vmin=0., vmax=2., cmap="cma:hesperia_r", scaling=0.33):
+    if boxes:
+        plot_boxes(ax, xs, ys)
+    if fill:
+        fill_boxes(ax, xs, ys, np.linalg.norm(ws, axis=-1), vmin, vmax, cmap, alpha=0.25)
+    for x, y, w in zip(xs, ys, ws):
+        normw = np.linalg.norm(w)
+        if normw > TINY:
+            plot_one_tensor(ax, x, y, w, color="k", zorder=100)
+    return
+
+def plot_tensor_filter(filter, title, ax=None):
+    assert filter.k == 2, "plot_tensor_filter(): Only 2-tensors (for now)."
+    if filter.D not in [2, ]:
+        print("plot_vector_filter(): Only works for D in [2, ].")
+        return
+    if ax is None:
+        fig = setup_plot()
+        ax = fig.gca()
+    MtotheD = filter.M ** filter.D
+    xs, ys = np.zeros(MtotheD), np.zeros(MtotheD)
+    ws = np.zeros((MtotheD, filter.D, filter.D))
+    for i, (kk, pp) in enumerate(zip(filter.keys(), filter.pixels())):
+        ws[i] = filter[kk].data
+        if filter.D == 2:
+            xs[i], ys[i] = pp
+        elif filter.D == 3:
+            xs[i], ys[i] = pp[0] + XOFF * pp[2], pp[1] + YOFF * pp[2]
+    plot_tensors(ax, xs, ys, ws, vmin=0., vmax=3.)
+    finish_plot(ax, title, filter.pixels(), filter.D)
+    return ax
+
 def plot_nothing(ax):
     ax.set_title(" ")
     nobox(ax)
@@ -424,6 +465,8 @@ def plot_filters(filters, names, n):
             plot_scalar_filter(ff, name, ax=axes[i])
         if ff.k == 1:
             plot_vector_filter(ff, name, ax=axes[i])
+        if ff.k == 2:
+            plot_tensor_filter(ff, name, ax=axes[i])
     for i in range(len(filters), n):
         plot_nothing(axes[i])
     return fig
