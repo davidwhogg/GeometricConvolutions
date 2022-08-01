@@ -289,17 +289,6 @@ class geometric_filter:
 FIGSIZE = (4, 3)
 XOFF, YOFF = 0.15, -0.1
 
-def make_colormap(unph=True):
-    if unph:
-        return cm.get_cmap("cma:unph")
-    else:
-        foo = np.linspace(0., 0.5, 256)
-        cmap = cm.get_cmap("gray_r")
-        colors = [cmap(f) for f in foo]
-        return ListedColormap(colors)
-    return
-cmap = make_colormap()
-
 def setup_plot():
     fig = plt.figure(figsize=FIGSIZE)
     return fig
@@ -328,19 +317,19 @@ def plot_boxes(ax, xs, ys):
                  [y-0.5, y+0.5, y+0.5, y-0.5, y-0.5], "k-", lw=0.5, zorder=10)
     return
 
-def fill_boxes(ax, xs, ys, ws, vmin, vmax, cmap, zorder=-100, colorbar=False):
-    cmx = cm.ScalarMappable(cmap=cmap)
+def fill_boxes(ax, xs, ys, ws, vmin, vmax, cmap, zorder=-100, colorbar=False, alpha=1.):
+    cmx = cm.ScalarMappable(cmap=cm.get_cmap(cmap))
     cmx.set_clim(vmin, vmax)
     cs = cmx.to_rgba(ws)
     if colorbar:
         plt.colorbar(cmx, ax=ax)
     for x, y, c in zip(xs, ys, cs):
         ax.fill_between([x - 0.5, x + 0.5], [y - 0.5, y - 0.5], [y + 0.5, y + 0.5],
-                             color=c, zorder=zorder)
+                             color=c, zorder=zorder, alpha=alpha)
     return
 
 def plot_scalars(ax, M, xs, ys, ws, boxes=True, fill=True, symbols=True,
-                 vmin=-2., vmax=2., cmap=cmap, colorbar=False):
+                 vmin=-2., vmax=2., cmap="cma:unph", colorbar=False):
     if boxes:
         plot_boxes(ax, xs, ys)
     if fill:
@@ -378,11 +367,11 @@ def plot_scalar_filter(filter, title, ax=None):
     return ax
 
 def plot_vectors(ax, xs, ys, ws, boxes=True, fill=True,
-                 vmin=-2., vmax=2., cmap=cmap, scaling=0.33):
+                 vmin=0., vmax=2., cmap="cma:lacerta_r", scaling=0.33):
     if boxes:
         plot_boxes(ax, xs, ys)
     if fill:
-        fill_boxes(ax, xs, ys, np.linalg.norm(ws, axis=-1), vmin, vmax, cmap)
+        fill_boxes(ax, xs, ys, np.linalg.norm(ws, axis=-1), vmin, vmax, cmap, alpha=0.25)
     for x, y, w in zip(xs, ys, ws):
         normw = np.linalg.norm(w)
         if normw > TINY:
@@ -411,7 +400,7 @@ def plot_vector_filter(filter, title, ax=None):
             xs[i], ys[i] = pp
         elif filter.D == 3:
             xs[i], ys[i] = pp[0] + XOFF * pp[2], pp[1] + YOFF * pp[2]
-    plot_vectors(ax, xs, ys, ws, vmin=-3., vmax=3.)
+    plot_vectors(ax, xs, ys, ws, vmin=0., vmax=3.)
     finish_plot(ax, title, filter.pixels(), filter.D)
     return ax
 
