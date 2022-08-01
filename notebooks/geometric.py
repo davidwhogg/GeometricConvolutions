@@ -18,6 +18,7 @@ import numpy as np
 import pylab as plt
 import matplotlib.cm as cm
 from matplotlib.colors import ListedColormap
+import cmastro as cma
 import itertools as it
 
 TINY = 1.e-5
@@ -288,11 +289,15 @@ class geometric_filter:
 FIGSIZE = (4, 3)
 XOFF, YOFF = 0.15, -0.1
 
-def make_colormap():
-    foo = np.linspace(0., 0.5, 256)
-    cmap = cm.get_cmap("gray_r")
-    colors = [cmap(f) for f in foo]
-    return ListedColormap(colors)
+def make_colormap(unph=True):
+    if unph:
+        return cm.get_cmap("cma:unph")
+    else:
+        foo = np.linspace(0., 0.5, 256)
+        cmap = cm.get_cmap("gray_r")
+        colors = [cmap(f) for f in foo]
+        return ListedColormap(colors)
+    return
 cmap = make_colormap()
 
 def setup_plot():
@@ -335,16 +340,11 @@ def fill_boxes(ax, xs, ys, ws, vmin, vmax, cmap, zorder=-100, colorbar=False):
     return
 
 def plot_scalars(ax, M, xs, ys, ws, boxes=True, fill=True, symbols=True,
-                 vmin=0., vmax=5., cmap=cmap, colorbar=False,
-                 norm_fill=False):
+                 vmin=-2., vmax=2., cmap=cmap, colorbar=False):
     if boxes:
         plot_boxes(ax, xs, ys)
     if fill:
-        if norm_fill:
-            nws = np.abs(ws)
-        else:
-            nws = ws
-        fill_boxes(ax, xs, ys, nws, vmin, vmax, cmap, colorbar=colorbar)
+        fill_boxes(ax, xs, ys, ws, vmin, vmax, cmap, colorbar=colorbar)
     if symbols:
         height = ax.get_window_extent().height
         ss = (5 * height / M) * np.abs(ws)
@@ -373,20 +373,16 @@ def plot_scalar_filter(filter, title, ax=None):
             xs[i], ys[i] = pp
         elif filter.D == 3:
             xs[i], ys[i] = pp[0] + XOFF * pp[2], pp[1] + XOFF * pp[2]
-    plot_scalars(ax, filter.M, xs, ys, ws, norm_fill=True)
+    plot_scalars(ax, filter.M, xs, ys, ws)
     finish_plot(ax, title, filter.pixels(), filter.D)
     return ax
 
 def plot_vectors(ax, xs, ys, ws, boxes=True, fill=True,
-                 vmin=0., vmax=5., cmap=cmap, scaling=None):
+                 vmin=-2., vmax=2., cmap=cmap, scaling=0.33):
     if boxes:
         plot_boxes(ax, xs, ys)
     if fill:
         fill_boxes(ax, xs, ys, np.linalg.norm(ws, axis=-1), vmin, vmax, cmap)
-    if scaling is None:
-        nws = np.linalg.norm(ws, axis=-1)
-        I = nws > TINY
-        scaling = 0.33 / np.median(nws[I])
     for x, y, w in zip(xs, ys, ws):
         normw = np.linalg.norm(w)
         if normw > TINY:
@@ -415,11 +411,11 @@ def plot_vector_filter(filter, title, ax=None):
             xs[i], ys[i] = pp
         elif filter.D == 3:
             xs[i], ys[i] = pp[0] + XOFF * pp[2], pp[1] + YOFF * pp[2]
-    plot_vectors(ax, xs, ys, ws)
+    plot_vectors(ax, xs, ys, ws, vmin=-3., vmax=3.)
     finish_plot(ax, title, filter.pixels(), filter.D)
     return ax
 
-def plot_no_filter(ax):
+def plot_nothing(ax):
     ax.set_title(" ")
     nobox(ax)
     return
@@ -440,7 +436,7 @@ def plot_filters(filters, names, n):
         if ff.k == 1:
             plot_vector_filter(ff, name, ax=axes[i])
     for i in range(len(filters), n):
-        plot_no_filter(axes[i])
+        plot_nothing(axes[i])
     return fig
 
 # ------------------------------------------------------------------------------
@@ -621,7 +617,7 @@ def setup_image_plot():
     ff = plt.figure(figsize=(8, 6))
     return ff
 
-def plot_scalar_image(image, vmin=None, vmax=None, ax=None, colorbar=False):
+def plot_scalar_image(image, vmin=-1., vmax=1., ax=None, colorbar=False):
     assert image.D == 2
     assert image.k == 0
     if ax is None:
@@ -655,7 +651,7 @@ def plot_vector_image(image, ax=None):
     plotdata = np.array([[pp[0], pp[1], image[kk].data[0], image[kk].data[1]]
                          for kk, pp in zip(image.keys(), image.pixels())])
     plot_vectors(ax, plotdata[:, 0], plotdata[:, 1], plotdata[:, 2:4],
-                 boxes=True, fill=False)
+                 boxes=True, fill=True, scaling=0.5)
     image_axis(ax, plotdata)
     return ax
 
@@ -665,3 +661,27 @@ def plot_image(image, **kwargs):
         plot_scalar_image(image, **kwargs)
     if image.k == 1:
         plot_vector_image(image, **kwargs)
+
+def plot_images(images):
+    """
+    # Notes:
+    - This takes a list of lists, each inner list is an image and
+      a LaTeX expression.
+    """
+    nim = len(images)
+    n = np.ceil(np.sqrt(nim)).astype(int)
+    m = np.ceil(nim / n).astype(int)
+    print(len(images), n, m)
+    bar = 10. # inches?
+    fig, axes = plt.subplots(m, n, figsize = (bar, 0.5 + 0.5 * m + bar * m / n)) # magic
+    axes = np.atleast_1d(axes).flatten()
+    bar = 0.2 / m
+    foo = 0.2 / n # fractional?
+    plt.subplots_adjust(left=foo/2, right=1-foo/2, wspace=foo,
+                        bottom=bar, hspace=bar)
+    for ax, (image, latex) in zip(axes, images):
+        plot_image(image, ax=ax)
+        finish_plot(ax, "$" + latex + "$", image.pixels(), image.D)
+    for i in range(nim, n * m):
+        plot_nothing(axes[i])
+    return fig
