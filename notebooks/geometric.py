@@ -11,7 +11,7 @@ TBD
 - Fix sizing of multi-filter plots.
 - Need to implement index permutation operation.
 - Need to implement Levi-Civita contraction.
-- Make all monomial images.
+- Need to implement bin-down and bin-up operators.
 """
 
 import numpy as np
@@ -134,14 +134,17 @@ class ktensor:
     def norm(self):
         if self.k == 0:
             return np.abs(self.data)
-        return np.linalg.norm(self.data, ord=2)
+        return np.linalg.norm(self.data)
 
     def times_scalar(self, scalar):
         return ktensor(scalar * self.data, self.parity, self.D)
 
     def times_group_element(self, gg):
-        # BUG: THIS IS UNTESTED.
-        # BUG: This is incomprehensible.
+        """
+        # Notes / Bugs:
+        - THIS IS UNTESTED.
+        - This is incomprehensible.
+        """
         assert self.k < 14
         assert gg.shape == (self.D, self.D)
         sign, logdet = np.linalg.slogdet(gg)
@@ -701,7 +704,7 @@ def plot_images(images):
       a LaTeX expression.
     """
     nim = len(images)
-    n = np.ceil(np.sqrt(nim)).astype(int)
+    n = np.floor(np.sqrt(nim)).astype(int)
     m = np.ceil(nim / n).astype(int)
     print(len(images), n, m)
     bar = 10. # inches?
