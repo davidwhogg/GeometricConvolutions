@@ -2,12 +2,15 @@
 # Core code for GeometricConvolutions
 
 ## License:
-TBD
+Copyright 2022 David W. Hogg and contributors.
+The code in GeometricConvolutions is licensed under the open-source MIT License.
+See the file `LICENSE` for more details.
 
 ## Authors:
 - David W. Hogg (NYU)
 
 ## To-do items:
+- Create tests for group operations on k-tensors.
 - Fix sizing of multi-filter plots.
 - Need to implement index permutation operation.
 - Need to implement Levi-Civita contraction.
@@ -171,6 +174,53 @@ class ktensor:
         letters  = "bcdefghijklmnopqrstuvwxyz"
         einstr = letters[:i] + "a" + letters[i:j-1] + "a" + letters[j-1:self.k-2]
         return ktensor(np.einsum(einstr, self.data), self.parity, self.D)
+
+# Now test group actions on k-tensors:
+def test_group_actions(operators):
+    """
+    # Notes:
+    - This only does minimal tests!
+    """
+    D = len(operators[0])
+
+    for parity in [-1, 1]:
+
+        # vector dot vector
+        v1 = ktensor(np.random.normal(size=D), parity, D)
+        v2 = ktensor(np.random.normal(size=D), parity, D)
+        dots = [(v1.times_group_element(gg)
+                 * v2.times_group_element(gg)).contract(0, 1).data
+                for gg in operators]
+        dots = np.array(dots)
+        if not np.allclose(dots, np.mean(dots)):
+            print("failed (parity = {}) vector dot test.".format(parity))
+            return False
+        print("passed (parity = {}) vector dot test.".format(parity))
+
+        # tensor times tensor
+        T3 = ktensor(np.random.normal(size=(D, D)), parity, D)
+        T4 = ktensor(np.random.normal(size=(D, D)), parity, D)
+        dots = [(T3.times_group_element(gg)
+                 * T4.times_group_element(gg)).contract(1, 2).contract(0, 1).data
+                for gg in operators]
+        dots = np.array(dots)
+        if not np.allclose(dots, np.mean(dots)):
+            print("failed (parity = {}) tensor times tensor test".format(parity))
+            return False
+        print("passed (parity = {}) tensor times tensor test".format(parity))
+
+        # vectors dotted through tensor
+        v5 = ktensor(np.random.normal(size=D), 1, D)
+        dots = [(v5.times_group_element(gg) * T3.times_group_element(gg)
+                 * v2.times_group_element(gg)).contract(1, 2).contract(0, 1).data
+                for gg in operators]
+        dots = np.array(dots)
+        if not np.allclose(dots, np.mean(dots)):
+            print("failed (parity = {}) v T v test.".format(parity))
+            return False
+        print("passed (parity = {}) v T v test.".format(parity))
+    
+    return True
 
 # ------------------------------------------------------------------------------
 # PART 3: Define a geometric (k-tensor) filter.
@@ -365,7 +415,7 @@ def plot_scalar_filter(filter, title, ax=None):
             xs[i], ys[i] = pp
         elif filter.D == 3:
             xs[i], ys[i] = pp[0] + XOFF * pp[2], pp[1] + XOFF * pp[2]
-    plot_scalars(ax, filter.M, xs, ys, ws)
+    plot_scalars(ax, filter.M, xs, ys, ws, vmin=-3., vmax=3.)
     finish_plot(ax, title, filter.pixels(), filter.D)
     return ax
 
