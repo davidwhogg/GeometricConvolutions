@@ -506,13 +506,11 @@ def plot_nothing(ax):
 def plot_filters(filters, names, n):
     assert len(filters) <= n
     bar = 10. # figure width in inches?
-    fig, axes = plt.subplots(1, n, figsize = (bar, 0.1 + bar / n)) # magic
+    fig, axes = plt.subplots(1, n, figsize = (bar, 0.03 * bar + bar / n)) # magic
     if n == 1:
         axes = [axes, ]
-    bar = 0.2
-    foo = bar / n # fractional?
-    plt.subplots_adjust(left=foo/2, right=1-foo/2, wspace=foo,
-                        bottom=foo)
+    plt.subplots_adjust(left=0.001, right=0.999, wspace=0.2/n,
+                        bottom=0.001, top=0.999-0.1, hspace=0)
     for i, (ff, name) in enumerate(zip(filters, names)):
         if ff.k == 0:
             plot_scalar_filter(ff, name, ax=axes[i])
@@ -758,12 +756,10 @@ def plot_images(images):
     m = np.ceil(nim / n).astype(int)
     print(len(images), n, m)
     bar = 10. # inches?
-    fig, axes = plt.subplots(m, n, figsize = (bar, 0.5 + 0.5 * m + bar * m / n)) # magic
+    fig, axes = plt.subplots(m, n, figsize = (bar, 0.2 * m + bar * m / n)) # magic
     axes = np.atleast_1d(axes).flatten()
-    bar = 0.2 / m
-    foo = 0.2 / n # fractional?
-    plt.subplots_adjust(left=foo/2, right=1-foo/2, wspace=foo,
-                        bottom=bar, hspace=bar)
+    plt.subplots_adjust(left=0.001, right=0.999, wspace=0.2/n,
+                        bottom=0.001, top=0.999-0.07/m, hspace=0.2/m)
     for ax, (image, latex) in zip(axes, images):
         plot_image(image, ax=ax)
         finish_plot(ax, "$" + latex + "$", image.pixels(), image.D)
