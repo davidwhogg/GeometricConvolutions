@@ -13,7 +13,7 @@ See the file `LICENSE` for more details.
 - Create tests for group operations on k-tensors.
 - Fix sizing of multi-filter plots.
 - Need to implement index permutation operation.
-- Need to implement Levi-Civita contraction.
+- Need to implement Levi-Civita contraction. Uh huh.
 - Need to implement bin-down and bin-up operators.
 """
 
@@ -98,6 +98,7 @@ class ktensor:
         return nn
 
     def __init__(self, data, parity, D):
+        self.levi_civita = None
         self.D = D
         assert self.D > 1, \
         "ktensor: geometry makes no sense if D<2."
@@ -174,6 +175,28 @@ class ktensor:
         letters  = "bcdefghijklmnopqrstuvwxyz"
         einstr = letters[:i] + "a" + letters[i:j-1] + "a" + letters[j-1:self.k-2]
         return ktensor(np.einsum(einstr, self.data), self.parity, self.D)
+
+    def levi_civita_contract(self, index):
+        assert self.D in [2, 3] # BECAUSE WE SUCK
+        assert (self.k + 1) >= self.D # so we have enough indices work on
+        if self.D == 2:
+            otherdata = np.zeros_like(self.data)
+            otherdata[..., 0] =  1. * np.take(self.data, 1, axis=index)
+            otherdata[..., 1] = -1. * np.take(self.data, 0, axis=index)
+            return ktensor(otherdata, self.parity * -1, self.D)
+        if self.D == 3:
+            assert len(index) == 2
+            i, j = index
+            assert i < j
+            otherdata = np.zeros_like(self.data[..., 0])
+            otherdata[..., 0] = np.take(np.take(data, 2, axis=j), 1, axis=i) \
+                              - np.take(np.take(data, 1, axis=j), 2, axis=i)
+            otherdata[..., 1] = np.take(np.take(data, 0, axis=j), 2, axis=i) \
+                              - np.take(np.take(data, 2, axis=j), 0, axis=i)
+            otherdata[..., 2] = np.take(np.take(data, 1, axis=j), 0, axis=i) \
+                              - np.take(np.take(data, 0, axis=j), 1, axis=i)
+            return ktensor(otherdata, self.parity * -1, self.D)
+        return
 
 # Now test group actions on k-tensors:
 def test_group_actions(operators):
@@ -336,6 +359,13 @@ class geometric_filter:
         for kk in newfilter.keys():
             newfilter[kk] = self[kk].contract(i, j)
         return newfilter
+
+    def levi_civita_contract(self, index):
+        assert (self.k + 1) >= self.D
+        newfilter = geometric_filter.zeros(self.N, self.k - self.D + 2, self.parity * -1, self.D)
+        for kk in self.keys():
+            newfilter[kk] = self[kk].levi_civita_contract(index)
+        return newimage
 
 # Visualize the filters.
 
@@ -692,6 +722,15 @@ class geometric_image:
         newimage = geometric_image.zeros(self.N, newk, self.parity, self.D)
         for kk in self.keys():
             newimage.data[kk] = self[kk].contract(i, j)
+        return newimage
+
+    def levi_civita_contract(self, index):
+        assert (self.k + 1) >= self.D
+        newk = self.k - self.D + 2
+        newparity = self.parity * -1
+        newimage = geometric_image.zeros(self.N, newk, newparity, self.D)
+        for kk in self.keys():
+            newimage.data[kk] = self[kk].levi_civita_contract(index)
         return newimage
 
 # Visualize geometric images
