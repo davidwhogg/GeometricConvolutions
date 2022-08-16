@@ -189,12 +189,12 @@ class ktensor:
             i, j = index
             assert i < j
             otherdata = np.zeros_like(self.data[..., 0])
-            otherdata[..., 0] = np.take(np.take(data, 2, axis=j), 1, axis=i) \
-                              - np.take(np.take(data, 1, axis=j), 2, axis=i)
-            otherdata[..., 1] = np.take(np.take(data, 0, axis=j), 2, axis=i) \
-                              - np.take(np.take(data, 2, axis=j), 0, axis=i)
-            otherdata[..., 2] = np.take(np.take(data, 1, axis=j), 0, axis=i) \
-                              - np.take(np.take(data, 0, axis=j), 1, axis=i)
+            otherdata[..., 0] = np.take(np.take(self.data, 2, axis=j), 1, axis=i) \
+                              - np.take(np.take(self.data, 1, axis=j), 2, axis=i)
+            otherdata[..., 1] = np.take(np.take(self.data, 0, axis=j), 2, axis=i) \
+                              - np.take(np.take(self.data, 2, axis=j), 0, axis=i)
+            otherdata[..., 2] = np.take(np.take(self.data, 1, axis=j), 0, axis=i) \
+                              - np.take(np.take(self.data, 0, axis=j), 1, axis=i)
             return ktensor(otherdata, self.parity * -1, self.D)
         return
 
