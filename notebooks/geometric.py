@@ -681,7 +681,7 @@ class geometric_image:
         assert newimage.N == self.N
         assert newimage.k == newk
         for kk in self.keys():
-            newimage.data[kk] = self[kk] * other[kk] # handled by ktensor
+            newimage[kk] = self[kk] * other[kk] # handled by ktensor
         return newimage
 
     def __str__(self):
@@ -700,7 +700,7 @@ class geometric_image:
         newimage = geometric_image.zeros(self.N, newk, newparity, self.D)
         for kk, pp in zip(self.keys(), self.pixels()):
             for dk, dp in zip(filter.keys(), filter.pixels()):
-                newimage.data[kk] += self[self.hash(pp + dp)] * filter[dk]
+                newimage[kk] += self[self.hash(pp + dp)] * filter[dk]
         return newimage
 
     def times_scalar(self, scalar):
@@ -721,7 +721,7 @@ class geometric_image:
         newk = self.k - 2
         newimage = geometric_image.zeros(self.N, newk, self.parity, self.D)
         for kk in self.keys():
-            newimage.data[kk] = self[kk].contract(i, j)
+            newimage[kk] = self[kk].contract(i, j)
         return newimage
 
     def levi_civita_contract(self, index):
@@ -730,7 +730,7 @@ class geometric_image:
         newparity = self.parity * -1
         newimage = geometric_image.zeros(self.N, newk, newparity, self.D)
         for kk in self.keys():
-            newimage.data[kk] = self[kk].levi_civita_contract(index)
+            newimage[kk] = self[kk].levi_civita_contract(index)
         return newimage
 
 # Visualize geometric images
