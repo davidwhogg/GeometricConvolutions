@@ -677,9 +677,6 @@ class geometric_image:
         assert self.N == other.N
         newk, newparity = self.k + other.k, self.parity * other.parity
         newimage = geometric_image.zeros(self.N, newk, newparity, self.D)
-        assert newimage.D == self.D
-        assert newimage.N == self.N
-        assert newimage.k == newk
         for kk in self.keys():
             newimage[kk] = self[kk] * other[kk] # handled by ktensor
         return newimage
