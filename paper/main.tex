@@ -71,6 +71,10 @@
 \newtheorem{conjecture}{Conjecture}
 \newtheorem{theorem}{Theorem}
 
+% math macros
+% HOGG SAY: I DON'T KNOW HOW TO USE AMSMATH \choose AND I'M ON A PLANE. FEEL FREE TO FIX THIS.
+\renewcommand{\choose}[2]{\begin{pmatrix}{#1}\\{#2}\end{pmatrix}}
+
 % text macros
 \newcommand{\sectionname}{Section}
 \newcommand{\secref}[1]{\sectionname~\ref{#1}}
@@ -279,7 +283,6 @@ where the group actions are defined above.
 The intuition here is that the filter $C$ represents some physical law, and the image $A$ represents the initial conditions or state of the physical system on which the law is acting.
 The physical law (represented by $C$) is invariant to translations, rotations, and parity, while the \emph{output} of the physical law (represented by $A\ast C$) is \emph{equivariant} to translations, rotations, and parity acting on the state $A$.
 
-
 The following theorem generalizes the Cohen and Welling paper:
 
 \begin{theorem}
@@ -300,6 +303,22 @@ By Definition \ref{} we have
 \end{eqnarray}
 where $a'=g\cdot a$. Therefore the convolution is equivariant if $g\cdot C(g^{-1} \cdot a') = C(a')$ for all $g\in B_d$ and all $a' \in [-m,m]^d$. 
 \end{proof}
+
+SOLE: WHERE SHOULD THIS GO?
+Now imagine that we want to find \emph{all} linear equivariant functions that go from an input $k$-tensor image of parity $p$ (SOLE: DO WE USE THIS CONCEPT OF PARITY PREVIOUSLY? IF NOT, IT SHOULD BE DEFINED. IT MIGHT SIMPLIFY OUR SHIT.) to an output $k'$-tensor image of parity $p'$, such that the input and output images are of the same size (both $N^d$).
+Here are the linear operations (linear in the input image) that are permitted):
+\begin{itemize}
+\item Choose an integer $\ell$ in the range $0\leq\ell\leq k$ such that $(k'-k+2\,\ell)>0$.
+  Convolve the input $k$-tensor image with a $(k'-k+2\,\ell)$-tensor invariant filter of parity $p\,p'$.
+  Contract the resulting $(k'+2\,\ell)$-tensor image (of parity $p'$) with the Kroenecker delta $\ell$ times, always choosing at least one index from the indices of the input image.
+  There are $$\prod_{i=1}^{\ell}\frac{1}{\ell!}\,\left[\choose{k'+2\,i}{2}-\choose{k'-k+2\,i}{2}\right]$$ possible choices for these $\ell$ Kroenecker contractions.
+\item Choose an integer $\ell$ in the range $0\leq\ell\leq k-d+1$ such that $(k'-k+d-2+2\,\ell)>0$.
+  Convolve the input $k$-tensor image with a $(k'-k+d-2+2\,\ell)$-tensor invariant filter of parity $-p\,p'$.
+  Contract the resulting $(k'+d-2+2\,\ell)$-tensor image (of parity $-p'$) with the Levi--Civita symbol.
+  There are $$\left[\choose{k'+d-2+2\,\ell}{d-1}-\choose{k'-k+d-2+2\,\ell}{d-1}\right]$$ choices for this Levi--Civita contraction.
+  Then contract the resulting $(k'+2\,\ell)$-tensor image (of parity $p'$) with the Kroenecker delta $\ell$ times, always choosing one index from the indices of either the input image or of the Levi--Civita symbol.
+  There are $$\prod_{i=1}^{\ell}\frac{1}{\ell!}\,\left[\choose{k'+2\,i}{2}-\choose{k'-k+2\,i}{2}\right]$$ possible choices for these $\ell$ Kroenecker contractions. (SOLE: IS THIS CONSISTENT WITH LANGUAGE ABOVE?)
+\end{itemize}
 
 \section{Nonlinear equivariant local geometric operators}\label{sec:nonlinear}
 
