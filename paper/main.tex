@@ -32,6 +32,14 @@
 %-- BEN: compute Molien's formula for this (translations semidirect D_4) action
 % 1/|G|\sum_{g\in G} det(I-\phi(g)t)^{-1}
 
+% write the levi civita contraction
+% write the procedure of which we make all linear functions from k tensor images to k' tensor images of the same size. 
+% do we include a pooling move?
+
+% how do we enumerate all tensor functions
+
+% 1, 6, 22, 49, 87 d=3, n=1,3,7,9 (11N^2-24N+21)/8
+
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage[letterpaper]{geometry} % because Overleaf is weird.
@@ -41,6 +49,21 @@
 \usepackage{amsfonts}
 \usepackage{amsmath}
 \usepackage{amsthm}
+
+% stuff for framing figures
+\usepackage[framemethod=tikz]{mdframed}
+\usetikzlibrary{shadows}
+\definecolor{captiongray}{HTML}{555555}
+\mdfsetup{%
+  innertopmargin=2ex,
+  innerbottommargin=1.8ex,
+  linecolor=captiongray,
+  linewidth=0.5pt,
+  roundcorner=5pt,
+  shadow=true,
+  shadowcolor=black!05,
+  shadowsize=4pt
+}
 
 % theorem, definition and so on
 \theoremstyle{plain}
@@ -72,8 +95,8 @@
 \frenchspacing\sloppy\sloppypar\raggedbottom
 
 \title{\bfseries%
-Equivariant convolution-based functions
-on tensor fields}
+Convolution-based functions
+on tensor fields and tensor images}
 \author{David W. Hogg, Ben Blum-Smith, and Soledad Villar}
 \date{}
 
@@ -81,18 +104,24 @@ on tensor fields}
 
 \maketitle\thispagestyle{empty}
 
-\paragraph{Abstract:} We provide a construction for general equivariant convolution-based functions of images or lattices
-containing scalars, vectors, and tensors. The formulation, inspired by Einstein summation notation, does not use point-wise activation functions, but it can universally approximate all analytic equivariant functions with respect to discrete rotations of the image. CHECK WITH BEN
+\paragraph{Abstract:}
+Convolutional neural networks are the main tools for machine learning with images at the present day.
+These methods effectively assume that the input images are scalar images (an intensity or brightness in each pixel, possibly in three or more channels), and they enforce a kind of locality and translation-equivariance.
+In natural-science domains, image-like data sets can have a vector (velocity, say), or tensor (polarization, say), or pseudovector (magnetic field, say), or any combination in each pixel.
+We provide a construction for general convolution-based functions of images or lattices
+containing scalars, vectors, and tensors, producing scalar, vector, and tensor outputs.
+Our formulation, which combines convolutions with products, tensor contractions, and tensor index permutations, does not require point-wise activation functions (RELU, say) but can universally approximate any suitably local analytic scalar, vector, or tensor functions on scalar, vector, or tensor images.
+Our method permits, with a very simple adjustment, restriction to function spaces that are exactly equivariant to translations, discrete rotations, and reflections.
 
 \section{Introduction}
 
-Contemporary physics teems with data sets that are images or lattices or grids of geometric objects.
+Contemporary natural science teems with data sets that are images or lattices or grids of geometric objects.
 Rectangular images or lattices of density (a scalar field), temperature (also a scalar field), velocity (a vector field), magnetic field (a pseudo-vector field), and polarization (a 2-tensor field) are regularly taken with detectors or made in simulations.
-That is, physics has lots of data that consists of geometric objects on regular grids.
-These objects (scalars, vectors, pseudo-vectors, and tensors, for example) are \emph{geometric} in the sense that they are defined by their transformation properties under rotation and reflection.
+That is, there is plenty of data consisting of geometric objects on regular grids.
+These kinds of images (grids of scalars, vectors, pseudo-vectors, and tensors, for example) are \emph{geometric} in the sense that they contain (at every pixel) objects are defined by their transformation properties under rotation and reflection.
 For example, scalars are defined to be quantities in $\mathbb R$ that are invariant with respect to all rotations and reflections; vectors are defined (in $d$-dimensional space) to be quantities in $\mathbb R^d$ that transform under rotation or reflection by multiplication by the orthogonal $d\times d$ matrix representing the rotation or reflection; and so on.
 
-For one concrete example, cosmological n-body simulations comprise the most computationally expensive part of most contemporary cosmological projects, missions, and experiments (CITE THINGS).
+For a concrete example close to one of our hearts (DWH's), contemporary cosmological n-body simulations comprise the most computationally expensive part of most contemporary cosmological projects, missions, and experiments (CITE THINGS).
 For this reason, accurate, fast emulators might be of enormous economic and scientific value.
 There are now quite a few successful projects implementing such emulators (CITE THINGS).
 Importantly, the initial conditions for these simulations are tiny displacements (vectors) and velocities (vectors) relative to a cubical lattice on a 3-torus.
@@ -316,20 +345,30 @@ We perform a singular value decomposition of these group-averaged filters to fin
 In detail, group averaging happens HOW? That is, what is the exact mathematical operation?
 
 \begin{figure}[tp]
+  \begin{mdframed}
+  \color{captiongray}
+  \begin{center}
 \includegraphics[width=\textwidth]{notebooks/filter+0_2_3.png}\\
 \includegraphics[width=\textwidth]{notebooks/filter+1_2_3.png}\\
 \includegraphics[width=\textwidth]{notebooks/filter-1_2_3.png}
 \includegraphics[width=\textwidth]{notebooks/filter+2_2_3.png}\\
 \includegraphics[width=\textwidth]{notebooks/filter-2_2_3.png}
+  \end{center}
 \caption{All the filters for $d=2$, $m=1$. HOGG: notes!}
+  \end{mdframed}
 \end{figure}
 
 \begin{figure}[tp]
+  \begin{mdframed}
+  \color{captiongray}
+  \begin{center}
 \includegraphics[width=\textwidth]{notebooks/filter+0_2_5.png}\\
 \includegraphics[width=\textwidth]{notebooks/filter-0_2_5.png}\\
 \includegraphics[width=\textwidth]{notebooks/filter+1_2_5.png}\\
 \includegraphics[width=\textwidth]{notebooks/filter-1_2_5.png}
+  \end{center}
 \caption{All the filters for $d=2$, $m=2$. HOGG: notes!}
+  \end{mdframed}
 \end{figure}
 
 Give a table saying how many filters there are for each $d$ and each $M$ at each $k$ and each parity.
@@ -337,15 +376,25 @@ Give a table saying how many filters there are for each $d$ and each $M$ at each
 Now show some fake-data geometric images and show the action of the $d=2$, $M=3$ filters on those images.
 
 \begin{figure}
+  \begin{mdframed}
+  \color{captiongray}
+  \begin{center}
     \includegraphics[width=\textwidth]{notebooks/monomials_1.png}
+  \end{center}
     \caption{A scalar image $s$ and convolutions with four chosen filters.}
+  \end{mdframed}
 \end{figure}
 
 Now show contractions of products of the above on those images.
 
 \begin{figure}
+  \begin{mdframed}
+  \color{captiongray}
+  \begin{center}
     \includegraphics[width=\textwidth]{notebooks/monomials_2.png}
+  \end{center}
     \caption{All unconvolved second-degree monomials of $s$, given four chosen filters. For the 2-tensor outputs (order $k=2$), we traced them back to scalars.}
+  \end{mdframed}
 \end{figure}
 
 \section{Implementation notes}
