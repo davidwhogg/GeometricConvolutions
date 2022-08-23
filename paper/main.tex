@@ -141,12 +141,40 @@ HOGG: Differences between continuous and discrete symmetries.
 
 HOGG: Summarize here how we are going to proceed, in human language.
 
+\paragraph{Related work:}
 
-\section{Geometric convolutions}\label{sec:convolution}
+\paragraph{Our contribution:}
 
-We consider the orthogonal group $O(d)$ and $g\in O(d)$. For our purposes $d$ will be 2 or 3, but everything generalizes.  
-We consider an image $A$ in a $d$-torus with $N$ equally spaced pixels in each dimension ($N^d$ pixels total). Each pixel can contain tensors and pseudotensors (of which scalars, pseudoscalars, vectors, and pseudovectors are particular cases) that we define below.
-Similarly, each linear geometric convolution operator $C$ will be a pixelized cubical image patch with $M$ pixels (with $M$ odd) in each dimension ($M^d$ pixels total) with a tensor or pseudotensor in each pixel, which acts as a linear pixel weight.
+\section{Geometric objects and geometric images}\label{sec:geometric}
+
+In this \sectionname{} we define the geometric objects and geometric images that we use to generalize classical images in scientific contexts.
+The main point is that the channels of geometric images---which will be like the components of vectors and tensors---are not independent.
+There is an underlying action by the orthogonal group that rules what are the allowed objects and transformations in this space.
+
+We first fix $d$, the dimension of the space (typically 2 or 3 but it could be arbitrary). The geometric objects are vectors and tensors. 
+The orthogonal group $O(d)$ can act on $v \in \mathbb R^d$ in the following ways:
+\begin{align} \label{eq.action}
+    g\cdot v = \det(M(g))^p M(g) v 
+\end{align}
+where $g\in O(d)$, $M(g)\in \mathbb R^{d\times d}$ is the standard matrix representation of $g$, and $p\in\{0,1\}$ is the parity of the action. If $p=0$ we obtain the standard $O(d)$ action on $\mathbb R^d$ \emph{vectors}. If $p=1$ we obtain what in physics is commonly known as the action of $O(d)$ on \emph{pseudovectors}. In this context the objects are defined by the actions that they carry.
+
+\begin{definition}[$k$-$p$-tensors] \label{def.tensors}
+We say that $v\in \mathbb R^d$ is a 1-$p$-tensor if $O(d)$ acts on $v$ via the action \eqref{eq.action}. 
+If $v_i$ is a 1-$p_i$-tensor then $T:=v_{1}\otimes\ldots \otimes v_k$ is a rank-1 $k$-$p$-tensor, where $p=\sum_{i=1}^k p_i \mod 2$ and the action of $O(d)$ is defined as
+\begin{align}
+    g\cdot (v_{1}\otimes\ldots \otimes v_k) = (g\cdot v_1)\otimes \ldots \otimes (g\cdot v_k)
+\end{align}
+Higher rank $k$-$p$-tensors are defined as linear combinations of rank-1  $k$-$p$-tensors where the action of $O(d)$ is extended linearly.
+\end{definition}
+
+We note that in physics the 1-0-tensors are known as \emph{vectors}, the 1-1-tensors are \emph{pseudovectors}, the 0-0-tensors are \emph{scalars}, 0-1-tensors are \emph{pseudoscalars}, the $k$-1-tensors with $k\geq 2$ are \emph{pseudotensors}, and finally the $k$-0-tensors with $k\geq 2$ are known as \emph{tensors}.
+
+
+We consider an image $A$ in with $N$ equally spaced pixels in each dimension ($N^d$ pixels total). Each pixel contains a $k$-$p$-tensor ($k$ and $p$ are the same for each pixel). Sometimes we will consider the image to be in a $d$-torus. 
+
+\section{Linear functions of geometric images}
+
+%Similarly, each linear geometric convolution operator $C$ will be a pixelized cubical image patch with $M$ pixels (with $M$ odd) in each dimension ($M^d$ pixels total) with a tensor or pseudotensor in each pixel, which acts as a linear pixel weight.
 
 For some of the expressions below we will use Ricci and Levi-Civita summation notation (or Einstein summation notation).
 In this notation, tensor products are written in component form, and repeated indices are summed over.
@@ -157,11 +185,7 @@ In this notation, the product of two 2-tensors (represented as two $d\times d$ m
 where $[A]_{i,k}$ (for example) is the $i,k$ element of matrix $A$, the repeated index $k$ is implicitly summed over the integers from 1 to $d$.
 This notation works for tensor expressions of any order, provided that every index appears either exactly once (so it isn't summed over; in the above expression $i, j$ appear exactly once) or exactly twice (so it is summed over; in the above expression $k$ appears exactly twice). 
 
-\begin{definition}[vectors, scalars, and $k$-tensors] \label{def.tensors}
-We say that $v\in \mathbb R^d$ is a vector (or 1-tensor) if $O(d)$ acts on $v$ via the canonical action. Namely, for any $g\in O(d)$ we have $g\cdot v = M(g)\, v$ where $M(g)\in \mathbb R^{d\times d}$ is the the matrix representation of $g$. We say that $a\in \mathbb R$ is a scalar (or 0-tensor) if $O(d)$ acts trivially on $a$. Namely $g\cdot a = a$.
-We say that $T\in (\mathbb R^d)^{\otimes k}$ is a $k$-tensor if $O(d)$ acts on $T$ as follows:
-$O(d)$ acts on a rank-1 $k$-tensor by $g\cdot (v_{1}\otimes\ldots \otimes v_k) = (g\cdot v_1)\otimes \ldots \otimes (g\cdot v_k)$ and it acts on higher rank tensors by linearly extending the actions to linear combinations of such rank-1 $k$-tensors.
-\end{definition}
+
 
 One consequence of the above definitions is that 
 $T\in (\mathbb R^d)^{\otimes k}$ is a $k$-tensor iff (in summation notation)
@@ -172,22 +196,21 @@ which, in normal matrix notation, is written as
 $g\cdot T = M(g)\,T\,M(g)^\top$.
 
 
-
-\begin{definition}[pseudovectors, pseudoscalars, and $k$-pseudotensors]
-We say that $B\in (\mathbb R^d)^{\otimes k}$ if a $k$-pseudotensor if it is acted by $O(d)$ by the following action: $g\odot B := \det(g)\, g \cdot B$ where $g\cdot B$ is the canonical action on $k$-tensors as in Definition \ref{def.tensors}. The pseudovectors and pseudoscalars are the 1-pseudotensors and 0-pseudotensors respectively.
-\end{definition}
-
 \begin{definition}[outer products of tensors]
-If $a$ is a $k$-tensor and $b$ is a $k'$-tensor, then the outer product $a\otimes b$ is a $(k+k')$-tensor with $[a\otimes b]_{i_1,\ldots,i_{k+k'}} = [a]_{i_1,\ldots,i_k}\,[b]_{i_{k+1},\ldots,i_{k+k'}}$
-Similarly, if $a$ is a $k$-pseudotensor and $b$ is a $k'$-pseudotensor, then $a\otimes b$ is a $(k+k')$-tensor.
-If $a$ is a $k$-tensor and $b$ is a $k'$-pseudotensor, or if $a$ is a $k$-pseudotensor and $b$ is a $k'$-tensor, then $a\otimes b$ is a $(k+k')$-pseudotensor.
+If $a$ is a $k$-$p$-tensor and $b$ is a $k'$-$p'$-tensor, then the outer product $a\otimes b$ is a $(k+k')$-$(p+p')$-tensor with $[a\otimes b]_{i_1,\ldots,i_{k+k'}} = [a]_{i_1,\ldots,i_k}\,[b]_{i_{k+1},\ldots,i_{k+k'}}$
 \end{definition}
 
-\begin{definition}[contractions of tensors]
-Let $a$ be a $k$-tensor in $\mathbb R^d$ with $k\geq 2$ such that $[a]_{i_1,\ldots i_k}\in \mathbb R$ for all $i_s = 1,\ldots, d$, and $s=1,\ldots, k$. We define the $a^{(\alpha,\beta)}$ contraction of $a$ to be the $k-2$ tensor resulting from summing jointly over the indices $i_\alpha$ and $i_\beta$ where $\alpha < \beta \in\{1,\ldots, k\}$. In Einstein summation notation it would be $a_{i_1, \ldots, x, \ldots , x, \ldots, i_k}$ where the $x$'s are placed in the positions $\alpha$ and $\beta$:
+\begin{definition}[Kronecker contractions of tensors]
+Let $a$ be a $k$-$p$-tensor in $\mathbb R^d$ with $k\geq 2$ such that $[a]_{i_1,\ldots i_k}\in \mathbb R$ for all $i_s = 1,\ldots, d$, and $s=1,\ldots, k$. We define the $(\alpha,\beta)$ Kronecker contraction of $a$ to be the $k-2$ tensor resulting from summing jointly over the indices $i_\alpha$ and $i_\beta$ where $\alpha < \beta \in\{1,\ldots, k\}$. In Einstein summation notation it would be $a_{i_1, \ldots, x, \ldots , x, \ldots, i_k}$ where the $x$s are placed in the positions $\alpha$ and $\beta$:
 \begin{equation}
-[a^{(\alpha,\beta)}]_{i_1,\ldots i_{\alpha-1}, i_{\alpha+1}, \ldots, i_{\beta-1}, i_{\beta+1} , \ldots, i_k} := \sum_{x=1}^d [a]_{i_1, \ldots, x, \ldots , x, \ldots, i_k}
+[a^{(\alpha,\beta)}]_{i_1,\ldots, i_{\alpha-1}, i_{\alpha+1}, \ldots, i_{\beta-1}, i_{\beta+1} , \ldots, i_k} := \sum_{x=1}^d [a]_{i_1, \ldots, i_{\alpha-1}, x, i_{\alpha+1}, \ldots, i_{\beta-1}, x, i_{\beta+1}. \ldots, i_k}
 \end{equation}
+There are $\choose{k}{2}$ different index choices for this contraction, corresponding to all the possible index pairs among $k$ original indices.
+\end{definition}
+
+\begin{definition}[Levi-Civita contractions of tensors]
+Let $a$ be a $k$-$p$-tensor in $\mathbb R^d$ with $k\geq d-1$ such that $[a]_{i_1,\ldots i_k}\in \mathbb R$ for all $i_s = 1,\ldots, d$, and $s=1,\ldots, k$. We define the Levi-Civita contraction of $a$ to be the $(k-d+2)$-$(p+1)$-tensor resulting from taking the outer product of 
+$a$ with the $d$-index Levi-Civita symbol $\epsilon_{i_1,i_2,\ldots,i_d}$ and then performing $d-1$ Kronecker contractions in which the first index is chosen from the (remaining) indices of $a$ and the second index is chosen from the (remaining) indices of the Levi-Civita symbol. There are $(d-1)!\,\choose{k}{d-1}$ different index choices for this contraction corresponding to an ordered list of $d-1$ indices chosen from among $k$ choices.
 \end{definition}
 
 \begin{definition}[permutations of tensor indices]
@@ -203,6 +226,10 @@ By a similar definition there are also $k$-pseudotensor images.
 We will also consider $k$-tensor images on the $d$-torus, where $[N]^d$ is given the algebraic structure of $(\mathbb Z / N\mathbb Z)^d$.
 \end{definition}
 
+\section{Linear functions of geometric images}\label{sec:convolution}
+
+In this \sectionname{} we define the linear operations that can be performed on a geometric image such that the outputs of these operations are also geometric images.
+
 \begin{definition}[geometric convolution]
 Let $A$ be a $k$-tensor image on the $d$-torus with side length $N$.
 Let $C$ be a $k'$-tensor image (filter) on $[-m, m]^d$ where $2m+1<N$.
@@ -215,14 +242,14 @@ If $A$ is a $k$-pseudotensor image and $C$ is a $k'$-pseudotensor filter, then $
 If $A$ is $k$-tensor and $C$ is $k'$-pseudotensor, or if $A$ is $k$-pseudotensor and $C$ is $k'$-tensor, then $A\ast C$ is a $k+k'$-pseudotensor.
 \end{definition}
 
-Geometric convolution is the same as ordinary convolution on the $d$-torus except generalized to outer products of tensor and pseudotensor inputs and outputs.
+Geometric convolution is the same as ordinary convolution on the $d$-torus except generalized to outer products of tensor inputs and outputs.
 
-The linear geometric convolution operation can be followed by contractions with Kroenecker deltas and Levi-Civita symbols to make lower-$k$, but still linear, objects.
-The Kroenecker delta is the object with 2 indices such that if the two indices are identical the value is $1$ and the value is $0$ otherwise.
+The linear geometric convolution operation can be followed by contractions with Kronecker deltas and Levi-Civita symbols to make lower-$k$, but still linear, objects.
+The Kronecker delta is the object with 2 indices such that if the two indices are identical the value is $1$ and the value is $0$ otherwise.
 The Levi-Civita symbol in $d\geq 2$ spatial dimensions is the object with $d$ indices such that if the $d$ indices are not repeated and in cyclic order the value is $+1$ and if the $d$ indices are not repeated and in anti-cyclic order the value is $-1$, and it has the value $0$ in all other cases.
 For an example of how the Levi-Civita symbol is used, in $d=3$ dimensions, the determinant of a $d\times d$ matrix $A$ is given by $\det(A) = [A]_{1,i}\,[A]_{2,j}\,[A]_{3,j}\,\epsilon_{ijk}$ in summation notation.
-Contraction of a $k$-tensor (with $k\geq 2$) with one application of the Kroenecker delta returns a $(k-2)$-tensor.
-Contraction of a $k$-pseudotensor (with $k\geq 2$) with one application of the Kroenecker delta returns a $(k-2)$-pseudotensor where $d$ is the spatial dimension.
+Contraction of a $k$-tensor (with $k\geq 2$) with one application of the Kronecker delta returns a $(k-2)$-tensor.
+Contraction of a $k$-pseudotensor (with $k\geq 2$) with one application of the Kronecker delta returns a $(k-2)$-pseudotensor where $d$ is the spatial dimension.
 Contraction of a $k$-tensor (with $k\geq (d-1)$) with one application of the Levi-Civita symbol returns a $(k-d+2)$-pseudotensor, because the contractions are structured with the last of the $d$ indices of the Levi-Civita symbol unpaired. SOLE DO WE NEED TO SAY MORE HERE?
 Contraction of a $k$-pseudotensor (with $k\geq (d-1)$) with one application of the Levi-Civita symbol returns a $(k-d+2)$-tensor.
 
@@ -230,10 +257,24 @@ For one example of these contractions, the 2-tensor formed by the outer product 
 For another example, the same 2-tensor can be contracted with the Levi-Civita symbol to give the standard cross product
 $[a\times b]_k = [a]_i\,[b]_j\,\epsilon_{ijk}$, which is a 1-pseudotensor or pseudovector.
 
+\section{Higher-order functions of geometric images}\label{sec:nonlinear}
+
 With these definitions in hand, we can make geometric filters, take outer products, and contract to make a combinatorically large set of nonlinear geometric convolution operators on images made up of geometric objects.
 But before we go nonlinear, we will go equivariant.
 
-\section{Equivariant geometric convolutions}\label{sec:equivariant}
+\section{Equivariant functions of geometric images}\label{sec:equivariant}
+
+\section{Expressive power of geometric convolutions}\label{sec:universality}
+
+\section{Implementation and numerical examples}\label{sec:examples}
+
+\section{Discussion}\label{sec:discussion}
+
+Hello world
+
+\appendix
+
+\section{All that follows needs to move up above}
 
 We will now create linear convolution operators that are group-equivariant, for groups of reflections, rotations, and translations (on the cubical torus).
 We will construct these equivariant convolution operators by an averaging over group operators, followed by a matrix factorization (singular-value decomposition).
@@ -310,14 +351,14 @@ Here are the linear operations (linear in the input image) that are permitted):
 \begin{itemize}
 \item Choose an integer $\ell$ in the range $0\leq\ell\leq k$ such that $(k'-k+2\,\ell)>0$.
   Convolve the input $k$-tensor image with a $(k'-k+2\,\ell)$-tensor invariant filter of parity $p\,p'$.
-  Contract the resulting $(k'+2\,\ell)$-tensor image (of parity $p'$) with the Kroenecker delta $\ell$ times, always choosing at least one index from the indices of the input image.
-  There are $$\prod_{i=1}^{\ell}\frac{1}{\ell!}\,\left[\choose{k'+2\,i}{2}-\choose{k'-k+2\,i}{2}\right]$$ possible choices for these $\ell$ Kroenecker contractions.
+  Contract the resulting $(k'+2\,\ell)$-tensor image (of parity $p'$) with the Kronecker delta $\ell$ times, always choosing at least one index from the indices of the input image.
+  There are $$\prod_{i=1}^{\ell}\frac{1}{\ell!}\,\left[\choose{k'+2\,i}{2}-\choose{k'-k+2\,i}{2}\right]$$ possible choices for these $\ell$ Kronecker contractions.
 \item Choose an integer $\ell$ in the range $0\leq\ell\leq k-d+1$ such that $(k'-k+d-2+2\,\ell)>0$.
   Convolve the input $k$-tensor image with a $(k'-k+d-2+2\,\ell)$-tensor invariant filter of parity $-p\,p'$.
   Contract the resulting $(k'+d-2+2\,\ell)$-tensor image (of parity $-p'$) with the Levi--Civita symbol.
   There are $$\left[\choose{k'+d-2+2\,\ell}{d-1}-\choose{k'-k+d-2+2\,\ell}{d-1}\right]$$ choices for this Levi--Civita contraction.
-  Then contract the resulting $(k'+2\,\ell)$-tensor image (of parity $p'$) with the Kroenecker delta $\ell$ times, always choosing one index from the indices of either the input image or of the Levi--Civita symbol.
-  There are $$\prod_{i=1}^{\ell}\frac{1}{\ell!}\,\left[\choose{k'+2\,i}{2}-\choose{k'-k+2\,i}{2}\right]$$ possible choices for these $\ell$ Kroenecker contractions. (SOLE: IS THIS CONSISTENT WITH LANGUAGE ABOVE?)
+  Then contract the resulting $(k'+2\,\ell)$-tensor image (of parity $p'$) with the Kronecker delta $\ell$ times, always choosing one index from the indices of either the input image or of the Levi--Civita symbol.
+  There are $$\prod_{i=1}^{\ell}\frac{1}{\ell!}\,\left[\choose{k'+2\,i}{2}-\choose{k'-k+2\,i}{2}\right]$$ possible choices for these $\ell$ Kronecker contractions. (SOLE: IS THIS CONSISTENT WITH LANGUAGE ABOVE?)
 \end{itemize}
 
 \section{Nonlinear equivariant local geometric operators}\label{sec:nonlinear}
