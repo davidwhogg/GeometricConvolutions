@@ -91,7 +91,7 @@ class ktensor:
             nn = "scalar"
         if k == 1:
             nn = "vector"
-        if parity < 0:
+        if parity % 2 == 1:
             nn = "pseudo" + nn
         if k > 1:
             nn = "${}$-".format(k) + nn
@@ -102,9 +102,7 @@ class ktensor:
         self.D = D
         assert self.D > 1, \
         "ktensor: geometry makes no sense if D<2."
-        self.parity = parity
-        assert np.abs(self.parity) == 1, \
-        "ktensor: parity must be 1 or -1."
+        self.parity = parity % 2
         if len(np.atleast_1d(data)) == 1:
             self.data = data
             self.k = 0
@@ -127,9 +125,9 @@ class ktensor:
     def __mul__(self, other):
         if self.k == 0 or other.k == 0:
             return ktensor(self.data * other.data,
-                           self.parity * other.parity, self.D)
+                           self.parity + other.parity, self.D)
         return ktensor(np.multiply.outer(self.data, other.data),
-                       self.parity * other.parity, self.D)
+                       self.parity + other.parity, self.D)
 
     def __str__(self):
         return "<k-tensor object in D={} with k={} and parity={}>".format(
@@ -161,9 +159,7 @@ class ktensor:
             einstr = "".join([firstletters[i] for i in range(self.k)]) +"," + \
             ",".join([secondletters[i] + firstletters[i] for i in range(self.k)])
             foo = (self.data, ) + self.k * (gg, )
-            newdata = np.einsum(einstr, *foo)
-        if self.parity < 0:
-            newdata *= sign
+            newdata = np.einsum(einstr, *foo) * sign ** self.parity
         return ktensor(newdata, self.parity, self.D)
 
     def contract(self, i, j):
@@ -183,7 +179,7 @@ class ktensor:
             otherdata = np.zeros_like(self.data)
             otherdata[..., 0] =  1. * np.take(self.data, 1, axis=index)
             otherdata[..., 1] = -1. * np.take(self.data, 0, axis=index)
-            return ktensor(otherdata, self.parity * -1, self.D)
+            return ktensor(otherdata, self.parity + 1, self.D)
         if self.D == 3:
             assert len(index) == 2
             i, j = index
@@ -195,7 +191,7 @@ class ktensor:
                               - np.take(np.take(self.data, 2, axis=j), 0, axis=i)
             otherdata[..., 2] = np.take(np.take(self.data, 1, axis=j), 0, axis=i) \
                               - np.take(np.take(self.data, 0, axis=j), 1, axis=i)
-            return ktensor(otherdata, self.parity * -1, self.D)
+            return ktensor(otherdata, self.parity + 1, self.D)
         return
 
 # Now test group actions on k-tensors:
@@ -206,7 +202,7 @@ def test_group_actions(operators):
     """
     D = len(operators[0])
 
-    for parity in [-1, 1]:
+    for parity in [0, 1]:
 
         # vector dot vector
         v1 = ktensor(np.random.normal(size=D), parity, D)
@@ -233,7 +229,7 @@ def test_group_actions(operators):
         print("passed (parity = {}) tensor times tensor test".format(parity))
 
         # vectors dotted through tensor
-        v5 = ktensor(np.random.normal(size=D), 1, D)
+        v5 = ktensor(np.random.normal(size=D), 0, D)
         dots = [(v5.times_group_element(gg) * T3.times_group_element(gg)
                  * v2.times_group_element(gg)).contract(1, 2).contract(0, 1).data
                 for gg in operators]
@@ -275,7 +271,7 @@ class geometric_filter:
         assert self.M == 2 * self.m + 1, \
         "geometric_filter: M needs to be odd."
         self.make_pixels_and_keys()
-        self.parity = parity
+        self.parity = parity % 2
         self.data = {kk: ktensor(ff, self.parity, self.D)
                      for kk, ff in zip(self.keys(), data)}
         self.k = self[self.keys()[0]].k
@@ -343,7 +339,7 @@ class geometric_filter:
                 return self.times_scalar(-1)
             return self
         if self.k == 1:
-            if self.parity > 0:
+            if self.parity % 2 == 0:
                 if np.sum([np.dot(pp, self[kk].data) for kk, pp in zip(self.keys(), self.pixels())]) < 0:
                     return self.times_scalar(-1)
                 return self
@@ -362,7 +358,7 @@ class geometric_filter:
 
     def levi_civita_contract(self, index):
         assert (self.k + 1) >= self.D
-        newfilter = geometric_filter.zeros(self.N, self.k - self.D + 2, self.parity * -1, self.D)
+        newfilter = geometric_filter.zeros(self.N, self.k - self.D + 2, self.parity + 1, self.D)
         for kk in self.keys():
             newfilter[kk] = self[kk].levi_civita_contract(index)
         return newimage
@@ -640,7 +636,7 @@ class geometric_image:
         assert data.shape[:D] == self.D * (self.N, ), \
         "geometric_filter: data must be square."
         self.make_pixels_and_keys()
-        self.parity = parity
+        self.parity = parity % 2
         self.data = {kk: ktensor(data[kk], self.parity, self.D)
                      for kk in self.keys()}
         self.k = self[self.keys()[0]].k
@@ -675,8 +671,8 @@ class geometric_image:
     def __mul__(self, other):
         assert self.D == other.D
         assert self.N == other.N
-        newk, newparity = self.k + other.k, self.parity * other.parity
-        newimage = geometric_image.zeros(self.N, newk, newparity, self.D)
+        newimage = geometric_image.zeros(self.N, self.k + other.k,
+                                         self.parity + other.parity, self.D)
         for kk in self.keys():
             newimage[kk] = self[kk] * other[kk] # handled by ktensor
         return newimage
@@ -693,8 +689,8 @@ class geometric_image:
         return package
 
     def convolve_with(self, filter):
-        newk, newparity = self.k + filter.k, self.parity * filter.parity
-        newimage = geometric_image.zeros(self.N, newk, newparity, self.D)
+        newimage = geometric_image.zeros(self.N, self.k + filter.k,
+                                         self.parity + filter.parity, self.D)
         for kk, pp in zip(self.keys(), self.pixels()):
             for dk, dp in zip(filter.keys(), filter.pixels()):
                 newimage[kk] += self[self.hash(pp + dp)] * filter[dk]
@@ -723,9 +719,8 @@ class geometric_image:
 
     def levi_civita_contract(self, index):
         assert (self.k + 1) >= self.D
-        newk = self.k - self.D + 2
-        newparity = self.parity * -1
-        newimage = geometric_image.zeros(self.N, newk, newparity, self.D)
+        newimage = geometric_image.zeros(self.N, self.k - self.D + 2,
+                                         self.parity + 1, self.D)
         for kk in self.keys():
             newimage[kk] = self[kk].levi_civita_contract(index)
         return newimage
