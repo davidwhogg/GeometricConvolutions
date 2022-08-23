@@ -152,7 +152,7 @@ class ktensor:
         sign, logdet = np.linalg.slogdet(gg)
         assert logdet == 0.
         if self.k == 0:
-            newdata = 1. * self.data
+            newdata = 1. * self.data * sign ** self.parity
         else:
             firstletters  = "abcdefghijklm"
             secondletters = "nopqrstuvwxyz"
