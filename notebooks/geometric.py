@@ -12,6 +12,8 @@ See the file `LICENSE` for more details.
 ## To-do items:
 - Drop the k-tensor and geometric filter classes; there can be only one class.
 - Move over to jax.
+- Make the geometric_filter inherit geometric_image to reduce repeated code.
+- Is it possible to make the data a big block (not a dictionary) but have the block addressable with keys()? I bet it is...?
 - Create tests for group operations on k-tensor images.
 - Fix sizing of multi-filter plots.
 - Switch over to jax so this is useful for ML people.
