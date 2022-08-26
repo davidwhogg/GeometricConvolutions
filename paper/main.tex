@@ -101,8 +101,7 @@
 \frenchspacing\sloppy\sloppypar\raggedbottom
 
 \title{\bfseries%
-Convolution-based functions
-on tensor fields and tensor images}
+Convolution-based functions on tensor fields and tensor images}
 \author{David W. Hogg, Ben Blum-Smith, and Soledad Villar}
 \date{}
 
@@ -116,32 +115,62 @@ These methods effectively assume that the input images are scalar images (an int
 In natural-science domains, image-like data sets can have a vector (velocity, say), or tensor (polarization, say), or pseudovector (magnetic field, say), or any combination in each pixel.
 We provide a construction for general convolution-based functions of images or lattices
 containing scalars, vectors, and tensors, producing scalar, vector, and tensor outputs.
-Our formulation, which combines convolutions with products, tensor contractions, and tensor index permutations, does not require point-wise activation functions (RELU, say) but can universally approximate any suitably local analytic scalar, vector, or tensor functions on scalar, vector, or tensor images.
-Our method permits, with a very simple adjustment, restriction to function spaces that are exactly equivariant to translations, discrete rotations, and reflections.
+Our formulation, which combines a geometric generalization of convolution with products, tensor index contractions, contractions with Levi-Civita symbols, and tensor index permutations, can universally approximate any suitably local analytic scalar, vector, or tensor functions on scalar, vector, or tensor images.
+The framework permits, with a very simple adjustment, restriction to function spaces that are exactly equivariant to translations, discrete rotations, and reflections, but the framework will be useful even in contexts in which the functions are not expected to be equivariant.
 
 \section{Introduction}
 
 Contemporary natural science teems with data sets that are images or lattices or grids of geometric objects.
-Rectangular images or lattices of density (a scalar field), temperature (also a scalar field), velocity (a vector field), magnetic field (a pseudo-vector field), and polarization (a 2-tensor field) are regularly taken with detectors or made in simulations.
-That is, there is plenty of data consisting of geometric objects on regular grids.
-These kinds of images (grids of scalars, vectors, pseudo-vectors, and tensors, for example) are \emph{geometric} in the sense that they contain (at every pixel) objects are defined by their transformation properties under rotation and reflection.
-For example, scalars are defined to be quantities in $\mathbb R$ that are invariant with respect to all rotations and reflections; vectors are defined (in $d$-dimensional space) to be quantities in $\mathbb R^d$ that transform under rotation or reflection by multiplication by the orthogonal $d\times d$ matrix representing the rotation or reflection; and so on.
+These might be observations of intensities (scalars), magnetic fields (pseudovectors), or polarizations (2-tensors) on a surface or in a volume.
+Or they might be the inputs or outputs of a simulation, in which the initial conditions or fields are specified on a regular grid.
+Any lattice or grid of vectors or tensors can be seen as a generalization of the concept of an image, in which the intensity in each pixel is replaced with a geometric object (scalar, vector, pseudovector, tensor) in each pixel.
+These objects are \emph{geometric} in the sense that they are defined in terms of their transformation properties under geometric operators such as rotation, translation, and reflection.
+Thus there is a need for machine learning methods designed for \emph{geometric images}---lattices or grids of scalars, vectors, and tensors.
+There are already countless applications of machine learning in contexts in which the input data are geometric images, including examples in essentially all natural-science disciplines (for example, CITE).
 
-For a concrete example close to one of our hearts (DWH's), contemporary cosmological n-body simulations comprise the most computationally expensive part of most contemporary cosmological projects, missions, and experiments (CITE THINGS).
-For this reason, accurate, fast emulators might be of enormous economic and scientific value.
-There are now quite a few successful projects implementing such emulators (CITE THINGS).
-Importantly, the initial conditions for these simulations are tiny displacements (vectors) and velocities (vectors) relative to a cubical lattice on a 3-torus.
-That is, the initial conditions can be described as a 3-dimensional image of vectors on a regular grid.
-For another concrete example, astronomical imaging data taken of the interstellar medium can be represented as rectangular lattices of measurements of temperature (scalar), optical depth (scalar), and induced polarization of starlight (a 2-tensor).
-Here the data can be described as a 2-dimensional image of scalars and tensors on a regular grid.
+%For a concrete example close to one of our hearts (DWH's), contemporary cosmological n-body simulations comprise the most computationally expensive part of most contemporary cosmological projects, missions, and experiments (CITE THINGS).
+%For this reason, accurate, fast emulators might be of enormous economic and scientific value.
+%There are now quite a few successful projects implementing such emulators (CITE THINGS).
+%Importantly, the initial conditions for these simulations are tiny displacements (vectors) and velocities (vectors) relative to a cubical lattice on a 3-torus.
+%That is, the initial conditions can be described as a 3-dimensional image of vectors on a regular grid.
+%For another concrete example, astronomical imaging data taken of the interstellar medium can be represented as rectangular lattices of measurements of temperature (scalar), optical depth (scalar), and induced polarization of starlight (a 2-tensor).
+%Here the data can be described as a 2-dimensional image of scalars and tensors on a regular grid.
 
-The application of machine-learning techniques to these problems can be dangerous:
-Machine-learning models have enormous freedom; the laws of physics are constrained to obey a large set of extremely strict symmetries, including rotation, reflection, translation, permutation, and boost equivariances, plus constraints such as units and dimensions symmetry, unitarity, and myriad conservation laws.
-If we want to operate safely on these problems, we want these symmetries built in from the start, and exactly.
+At the present day, the go-to tools for machine learning with images are convolutional neural networks (CNNs; CITE) and their many descendents (for example, CITE).
+These methods are designed to work on one- or few-channel images in which, at the bottom (early) layers of the network, the operations involve image convolutions with learned filters followed by the application of pointwise nonlinearities.
+In typical contexts, the channels of multi-channel input images will be something like the red, green, and blue (or cyan, magenta, yellow, and black) channels of a color image; these can be combined arbitrarily in the layers of the CNN.
+When these CNN-based tools are applied to lattices of vectors (say), typically the components of the vectors are treated just as channels of the input image (for an example, see CITE) and then everything proceeds as with multi-channel color images.
+This is not good!
 
-HOGG: Differences between continuous and discrete symmetries.
+Actually, it \emph{is} good: There are many successful projects that have repurposed CNNs in this way to work on geometric images.
+But there are even better choices.
+Here we propose a set of tools that generalize the concept of convolution to apply to geometric images such that the outputs of the convolutions are also geometric images, obeying the same geometric transformation rules as the inputs.
 
-HOGG: Summarize here how we are going to proceed, in human language.
+The fundamental observation inspiring this work is that when the components of vectors and tensors are acted on with arbitrary functions, the geometric structure of these objects is destroyed.
+There are strict rules, dating back to the invention of differential geometry (CITE RICCI++), about how geometric objects can be combined to produce new geometric objects, consistent with coordinate freedom and transformation rules.
+In previous work (CITE VILLAR++, YAO++) we have capitalized on these geometric rules to develop modified machine-learning methods that are restricted to exactly obey group-theoretic equivariances in physics contexts.
+Here we use these rules to create a comprehensive set of tools that are universally approximating for functions that take geometric images as input and produce geometric labels (or geometric-image labels) as output.
+
+We are motivated in this work to help solve problems in the natural sciences, where geometric images abound.
+However, we conjecture that these tools are probably very useful even for standard machine-learning image-recognition and image-regression tasks.
+After all, even standard images are measurements of intensity (a scalar) at a regular grid of points on a two-dimensional surface.
+If the labels we seek are also scalars, it will behoove us to obey the rules of geometry.
+
+These rules are roughly as follows:
+A $k$-tensor object (tensor of order $k$) in $d$ dimensions has $k$ indices, each of which can take a value from 1 to $d$; that is, the $k$-tensor is an element of $(\mathbb R^d)^{\otimes k}$.
+It can be contracted to a $(k-2)$-tensor object by identifying a pair of indices and summing over them.
+A $k$-tensor and a $k'$-tensor can be multiplied (outer product) to make a $(k+k')$-tensor object, and then contractions can bring down the order.
+$1$-tensor objects are called vectors and $0$-tensor objects are called scalars.
+There are also odd-parity versions of all these (pseudovectors, pseudoscalars, and pseudotensors), and parity-changing contractions using the Levi-Civita symbol, so in what follows we will define $k$-$p$-tensors that have $k$ indices and a parity $p\in [0, 1]$.
+Two objects can only be added or subtracted if they have the same order $k$ and parity $p$.
+This will all be made precise below.
+But in short, these rules define objects that can be given transformation rules under rotation and reflection such that functions made of these operations are coordinate free, or equivariant to any change of coordinate system (including curvilinear coordinate transformations).
+
+The symmetries that suggest these rules are continuous symmetries.
+But of course images are usually---and for our purposes---discrete grids of values.
+This suggests that in addition to the continuous symmetries respected by the tensor objects in the image pixels there will be discrete symmetries for each geometric image taken as a whole.
+We will define these discrete symmetry groups and use them to define a useful kind of group equivariance for functions of geometric images.
+This equivariance, it turns out, is very easy to enforce, even for nonlinear functions of geometric images, provided that we compose our nonlinear functions from simple geometric operations, including our geometric generalization of convolution.
 
 \paragraph{Related work:}
 
@@ -282,6 +311,7 @@ Here are the linear operations (linear in the input image) that are permitted:
       There are $k'!$ choices for the index permutation.
     \item Perform (generally after all the above) a pooling or unpooling step to get the image to side length $N'$.
 \end{enumerate}
+The objects obtained by this algorithm may not be linearly independent.
 
 In principle there could also have been an \emph{eigenvalues} operator that is linear in the input and produces $d$ $0$-$p$-tensors.
 But since any such operation can only reasonably be applied to $2$-$p$-tensors, and even for those, only Hermitian ones, we don't include this operation here.
@@ -315,6 +345,8 @@ Now to construct all degree-2 monomials that produce a $k'$-$p'$-tensor image of
     \item Outer product these two images.
     \item By the rules in \secref{sec:convolution}, construct any linear function that takes this image outer product as input and produces a $k'$-$p'$-tensor image of side length $N'$ as output.
 \end{enumerate}
+ 
+
 We conjecture that these rules will generate all possible second-degree monomial functions of the input image (SOLE SUBJECT TO SOME CONDITIONS) that meet the output requirements. A polynomial function of degree 2 can be constructed by linear combinations of these second-degree monomial functions along with all the linear functions that also produce $k'$-$p'$-tensor images of side length $N'$ (plus perhaps constant images).
 Higher-degree monomials and polynomials can be made out of products of lower-degree monomials, by generalization of the above.
 
@@ -510,10 +542,8 @@ Now show contractions of products of the above on those images.
 
 Hello world
 
+There is a continuous set of symmetries that inspire the summation-notation rules. There are discrete symmetries that are exact for these square images. 
 One discussion point: you might be able to get back to a continuous symmetry group if you consider the image to be a VIEW of a large, continuous tensor field...?
-
-
-
 
 Note that we never take eigenvalues. But these are also real scalars in some cases.
 
