@@ -10,7 +10,9 @@ See the file `LICENSE` for more details.
 - David W. Hogg (NYU)
 
 ## To-do items:
-- Create better tests for group operations on k-tensors.
+- Drop the k-tensor and geometric filter classes; there can be only one class.
+- Move over to jax.
+- Create tests for group operations on k-tensor images.
 - Fix sizing of multi-filter plots.
 - Switch over to jax so this is useful for ML people.
 - Switch the structure of the image and filter so they make better use of jax.numpy array objects.
@@ -20,12 +22,12 @@ See the file `LICENSE` for more details.
 - Need to implement bin-down and bin-up operators.
 """
 
+import itertools as it
 import numpy as np
 import pylab as plt
 import matplotlib.cm as cm
 from matplotlib.colors import ListedColormap
-import cmastro as cma
-import itertools as it
+import cmastro
 
 TINY = 1.e-5
 
