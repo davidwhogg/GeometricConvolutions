@@ -80,13 +80,14 @@
 % text macros
 \newcommand{\sectionname}{Section}
 \newcommand{\secref}[1]{\sectionname~\ref{#1}}
+\newcommand{\figref}[1]{\figurename~\ref{#1}}
 
 % typesetting adjustments
 \makeatletter
 \renewcommand\section{\@startsection {section}{1}{\z@}%
   {-3.25ex \@plus -1ex \@minus -.2ex}%
   {1.5ex \@plus .2ex}%
-  {\raggedright\normalfont\large\bfseries}}
+  {\raggedright\normalfont\large\bfseries}}% key thing is: \raggedright!
 \makeatother
 \setlength{\textwidth}{5.00in}
 \setlength{\oddsidemargin}{3.25in}
@@ -101,7 +102,7 @@
 \frenchspacing\sloppy\sloppypar\raggedbottom
 
 \title{\bfseries%
-Convolution-based functions on tensor fields and tensor images}
+Convolution-based nonlinear functions on tensor fields and tensor images}
 \author{David W. Hogg, Ben Blum-Smith, and Soledad Villar}
 \date{}
 
@@ -171,6 +172,7 @@ But of course images are usually---and for our purposes---discrete grids of valu
 This suggests that in addition to the continuous symmetries respected by the tensor objects in the image pixels there will be discrete symmetries for each geometric image taken as a whole.
 We will define these discrete symmetry groups and use them to define a useful kind of group equivariance for functions of geometric images.
 This equivariance, it turns out, is very easy to enforce, even for nonlinear functions of geometric images, provided that we compose our nonlinear functions from simple geometric operations, including our geometric generalization of convolution.
+When we enforce this equivariance, the convolution filters that appear look very much like the differential operators that appear in discretizations of vector calculus, which is perhaps not surprising.
 
 \paragraph{Related work:}
 
@@ -256,7 +258,7 @@ Below we define the contraction of a $k$-$p$-tensor (with $k\geq 2$) with one ap
 The Levi-Civita symbol in $d\geq 2$ spatial dimensions is the object with $d$ indices (where $d$ is the spatial dimension) such that if the $d$ indices are not repeated and in an even-permutation order the value is $+1$ and if the $d$ indices are not repeated and in an odd-permutation order the value is $-1$, and it has the value $0$ in all other cases.
 We define the contraction of a $k$-$p$-tensor (with $k\geq (d-1)$) with one application of the Levi-Civita symbol, which returns a $(k-d+2)$-$(p+1)$-tensor, because the contraction sums over $d$ pairs of indices, and it changes the parity from even to odd or odd to even.
 For one example of these contractions, the 2-tensor formed by the outer product of 1-tensors $a$ and $b$ can be contracted with the Kronecker delta to give the standard dot product $a^\top b = [a]_i\,[b]_j\,\delta_{ij}$, which is a 0-tensor or scalar.
-For another example, the same 2-tensor can be contracted with the Levi-Civita symbol to give the standard cross product
+For another example, the same 2-tensor can (in $d=3$ dimensions) be contracted with the Levi-Civita symbol to give the standard cross product
 $[a\times b]_k = [a]_i\,[b]_j\,\epsilon_{ijk}$, which is a pseudovector.
 
 \begin{definition}[Kronecker contractions of tensors and geometric images]
@@ -345,7 +347,6 @@ Now to construct all degree-2 monomials that produce a $k'$-$p'$-tensor image of
     \item Outer product these two images.
     \item By the rules in \secref{sec:convolution}, construct any linear function that takes this image outer product as input and produces a $k'$-$p'$-tensor image of side length $N'$ as output.
 \end{enumerate}
- 
 
 We conjecture that these rules will generate all possible second-degree monomial functions of the input image (SOLE SUBJECT TO SOME CONDITIONS) that meet the output requirements. A polynomial function of degree 2 can be constructed by linear combinations of these second-degree monomial functions along with all the linear functions that also produce $k'$-$p'$-tensor images of side length $N'$ (plus perhaps constant images).
 Higher-degree monomials and polynomials can be made out of products of lower-degree monomials, by generalization of the above.
@@ -358,16 +359,13 @@ This family of nonlinear local operators will be equivariant to the group $G_d$ 
 
 \section{Equivariant functions of geometric images}\label{sec:equivariant}
 
-Introduce the discrete group. Why discrete?
+Introduce the discrete group. Why discrete? SOLE: SEE TEXT BELOW FOR DEFINITIONS.
 
 Define equivariance.
 
 Prove translation invariance.
 
-Prove thing about invariant filters.
-
-We will now create linear convolution operators that are group-equivariant, for groups of reflections, rotations, and translations (on the cubical torus).
-We will construct these equivariant convolution operators by an averaging over group operators, followed by a matrix factorization (singular-value decomposition).
+Prove things about invariant filters and equivariant linear functions.
 
 \begin{definition}[Group $B_d$ of symmetries of a $d$-hypercube]
 We denote by $B_d$ the group of rotation and reflection symmetries of the $d$-dimensional hypercube.
@@ -375,10 +373,9 @@ We denote by $B_d$ the group of rotation and reflection symmetries of the $d$-di
 
 Notes about the group $B_d$: In $d=2$ there are $8$ group elements, in $d=3$ there are $48$ group elements (and in $d=4$ there are 384). Because the groups $B_d$ are subgroups of $O(d)$, all determinants of the matrix representations of the group elements are either $+1$ or $-1$, and the matrix representation $M(g^{-1})$ of the inverse $g^{-1}$ of group element $g$ is the transpose of the matrix representation $M(g)$ of group element $g$.
 
-\begin{definition}[Action of $B_d$ on $k$-tensors and $k$-pseudotensors]
+\begin{definition}[Action of $B_d$ on $k$-$p$-tensors]
 \begin{align}
-\mbox{$k$-tensor:} ~~ g\cdot(v_1 \otimes \ldots \otimes v_k) &= (g\cdot v_1)\otimes\ldots\otimes(g\cdot v_k) \\
-\mbox{$k$-pseudotensor:} ~~ g\cdot(v_1 \otimes \ldots \otimes v_k) &= \det(g)\,(g\cdot v_1)\otimes\ldots\otimes(g\cdot v_k) ~,
+g\cdot(v_1 \otimes \ldots \otimes v_k) &= \det(g)^p\,(g\cdot v_1)\otimes\ldots\otimes(g\cdot v_k)
 \end{align}
 And extend linearly
 \end{definition}
@@ -396,6 +393,8 @@ SOmeThiNg about how $g^{-1}\cdot\bar\i$ works here, possibly preceded or followe
 It might be a bit surprising that the group element $g^{-1}$ appears in the definition of the action of the group on images.
 One way to think about it is that the pixels in the output (rotated, say) image are ``looked up'' or ``read out'' from the pixels in the original (unrotated) image.
 The pixel locations in the original image are found by going back, or inverting the transformation.
+
+HOGG: Make a table and a figure showing all the group operators in $B_d$ with $d=2$.
 
 \begin{definition}[The group $G_d$, and its action on $k$-tensor images]
 THIS NEEDS TO BE WRITTEN: $G_d$ is the group generated by the elements of $B_d$ and the discrete translations on the $N^d$-pixel lattice on the $d$-torus.
@@ -435,20 +434,45 @@ By Definition \ref{} we have
 where $a'=g\cdot a$. Therefore the convolution is equivariant if $g\cdot C(g^{-1} \cdot a') = C(a')$ for all $g\in B_d$ and all $a' \in [-m,m]^d$. 
 \end{proof}
 
-\subsection{Construction of equivariant geometric convolution filters}
-In the above we defined nonlinear equivariant geometric operators acting on $d$-dimensional images on the $d$-torus.
-These, in turn, are constructed from products of the outputs of equivariant geometric convolution filters.
+\paragraph{Numerical construction of invariant geometric convolution filters:}
+In the above we defined equivariant geometric operators acting on $d$-dimensional images on the $d$-torus.
+These, in turn, are constructed from products of the outputs of convolutions with invariant geometric filters.
 Here we show how to find all such filters by a group-averaging technique.
 
 Briefly, the idea is the following:
 We start with a set of independent $k'$-tensor (or $k'$-pseudotensor) convolution filters that span the space of all possible geometric convolution filters at side length $M$ ($M$ odd) and dimension $d$.
 There are typically $M^d\,d^{k'}$ independent filters in this set.
 We average the filters over all group operators $g\in B_d$, where $B_d$ is the group of 90-degree rotations and reflections.
-We perform a singular value decomposition of these group-averaged filters to find the $p$ independent orthogonal filters that span the space of equivariant $k'$-tensor (or $k'$-pseudotensor) convolution filters at side length $M$ in $d$ dimensions.
+We perform a singular value decomposition of these group-averaged filters to find the $p$ independent orthogonal filters that span the space of equivariant $k'$-tensor (or $k'$-pseudotensor) convolution filters at side length $M=2\,m+1$ in $d$ dimensions.
+The results of these operations are shown for $d=2$ and $m\in[1, 2]$ in \figref{fig:filters23} and \figref{fig:filters25}.
+HOGG: Give a table saying how many filters there are for each dimension $d$ and each side length $M$ at each order $k$ and each parity $p$.
+\begin{figure}[tp]
+  \begin{mdframed}
+  \color{captiongray}
+  \begin{center}
+\includegraphics[width=\textwidth]{notebooks/filter+0_2_3.png}\\
+\includegraphics[width=\textwidth]{notebooks/filter+1_2_3.png}\\
+\includegraphics[width=\textwidth]{notebooks/filter-1_2_3.png}
+\includegraphics[width=\textwidth]{notebooks/filter+2_2_3.png}\\
+\includegraphics[width=\textwidth]{notebooks/filter-2_2_3.png}
+  \end{center}
+\caption{All the filters for $d=2$, $m=1$ ($M=3$). HOGG: notes!\label{fig:filters23}}
+  \end{mdframed}
+\end{figure}
+\begin{figure}[tp]
+  \begin{mdframed}
+  \color{captiongray}
+  \begin{center}
+\includegraphics[width=\textwidth]{notebooks/filter+0_2_5.png}\\
+\includegraphics[width=\textwidth]{notebooks/filter-0_2_5.png}\\
+\includegraphics[width=\textwidth]{notebooks/filter+1_2_5.png}\\
+\includegraphics[width=\textwidth]{notebooks/filter-1_2_5.png}
+  \end{center}
+\caption{All the filters for $d=2$, $m=2$ ($M=5$). HOGG: notes!\label{fig:filters25}}
+  \end{mdframed}
+\end{figure}
 
-In detail, group averaging happens HOW? That is, what is the exact mathematical operation?
-
-\section{Expressive power of geometric convolutions}\label{sec:universality}
+\section{Expressive power of nonlinear convolution-based functions}\label{sec:universality}
 
 Counting arguments.
 
@@ -460,47 +484,13 @@ We can cite that convolutions with small patches may be seen as low pass filters
 
 \section{Implementation and numerical examples}\label{sec:examples}
 
-How do we make the invariant filters?
+How do we make the invariant filters? See \secref{sec:equivariant}.
 
-How do we make the linear functions?
-
-What do they look like?
-
-Etc.
-
-An example?
-
-\begin{figure}[tp]
-  \begin{mdframed}
-  \color{captiongray}
-  \begin{center}
-\includegraphics[width=\textwidth]{notebooks/filter+0_2_3.png}\\
-\includegraphics[width=\textwidth]{notebooks/filter+1_2_3.png}\\
-\includegraphics[width=\textwidth]{notebooks/filter-1_2_3.png}
-\includegraphics[width=\textwidth]{notebooks/filter+2_2_3.png}\\
-\includegraphics[width=\textwidth]{notebooks/filter-2_2_3.png}
-  \end{center}
-\caption{All the filters for $d=2$, $m=1$. HOGG: notes!}
-  \end{mdframed}
-\end{figure}
-
-\begin{figure}[tp]
-  \begin{mdframed}
-  \color{captiongray}
-  \begin{center}
-\includegraphics[width=\textwidth]{notebooks/filter+0_2_5.png}\\
-\includegraphics[width=\textwidth]{notebooks/filter-0_2_5.png}\\
-\includegraphics[width=\textwidth]{notebooks/filter+1_2_5.png}\\
-\includegraphics[width=\textwidth]{notebooks/filter-1_2_5.png}
-  \end{center}
-\caption{All the filters for $d=2$, $m=2$. HOGG: notes!}
-  \end{mdframed}
-\end{figure}
-
-Give a table saying how many filters there are for each $d$ and each $M$ at each $k$ and each parity.
+How do we make the linear functions? See \secref{sec:convolution}.
 
 Now show some fake-data geometric images and show the action of the $d=2$, $M=3$ filters on those images.
 
+What do they look like? Like calculus operators! See figures.
 \begin{figure}
   \begin{mdframed}
   \color{captiongray}
@@ -545,11 +535,18 @@ Hello world
 There is a continuous set of symmetries that inspire the summation-notation rules. There are discrete symmetries that are exact for these square images. 
 One discussion point: you might be able to get back to a continuous symmetry group if you consider the image to be a VIEW of a large, continuous tensor field...?
 
+It is interesting that the convolution operations look (in many cases) very much like discrete versions of vector calculus operations, like div, grad, curl, and so on. That's interesting, and potentially useful.
+
 Note that we never take eigenvalues. But these are also real scalars in some cases.
 
-Note that pseudo-$k$-tensor filters only exist for certain triples of $(d, m, k)$.
+Note that $k$-$1$-tensor (pseudo) filters only exist for certain triples of $(d, m, k)$.
 
 \paragraph{Acknowlegements:}
-This project made use of Python, numpy, matplotlib, and cmastro. 
+It is a pleasure to thank Teresa Huang (JHU) and Kate Storey-Fisher (NYU) for valuable discussions.
+This project made use of Python~3 \cite{python3}, numpy \cite{numpy}, matplotlib \cite{matplotlib}, and cmastro \cite{cmastro}.
+All code used for making the data and figures in this paper are available at \url{https://github.com/davidwhogg/GeometricConvolutions}.
 
+\bibliographystyle{plain}
+\raggedright
+\bibliography{ref}
 \end{document}
