@@ -434,41 +434,39 @@ By Definition \ref{} we have
 where $a'=g\cdot a$. Therefore the convolution is equivariant if $g\cdot C(g^{-1} \cdot a') = C(a')$ for all $g\in B_d$ and all $a' \in [-m,m]^d$. 
 \end{proof}
 
-In practice, a complete set of invariant $k$-$p$-tensor filters (filters $C$ such that $g\cdot C(g^{-1} \cdot a') = C(a')$) can be found by group averaging.
+In practice, a complete set of invariant $k'$-$p'$-tensor filters (filters $C$ such that $g\cdot C(g^{-1} \cdot a') = C(a')$) can be found by group averaging.
 This works by building any set of linearly independent $k'$-$p'$-tensor filters (randomly or systematically), and then building, for each of these linearly independent filters $C$, a group-averaged filter $\bar{C}$ by
 \begin{equation}
     \bar{C}(a') = \frac{1}{|B_d|}\,\sum_{g\in B_d} g\cdot C(g^{-1}\cdot a') ~,
 \end{equation}
-where $|B_d|$ is the number of group elements.
-The averaged filters are then reduced to an ``eigen-set'' of orthogonal filters by the singular value decomposition.
-In detail we started this averaging with a set of independent $k'$-$p'$-tensor convolution filters that span the space of all possible geometric convolution filters at side length $M$ ($M=2\,m+1$) and dimension $d$.
-There are $M^d\,d^{k'}$ independent filters in this set.
+where $|B_d|$ is the number of group elements (8 for $d=2$ and 27 for $d=3$).
+In detail we took a systematic (not random) approach that initialized the averaging with a set of independent $k'$-$p'$-tensor convolution filters that span the space of all possible geometric convolution filters at side length $M$ ($M=2\,m+1$) and dimension $d$.
+There are $M^d\,d^{k'}$ independent filters in this initial set.
+The averaged filters are then reduced to an ``eigen-set'' of orthogonal, non-zero filters by the singular-value decomposition.
+The singular-value decomposition reduces the number of filters dramatically.
+The outputs of the singular-value decomposition can be normalized however seems appropriate.
+In detail we normalized to get unit tensor norms in the non-zero pixels.
 The results of these operations are shown for $d=2$ and $m\in[1, 2]$ in \figref{fig:filters23} and \figref{fig:filters25}.
-HOGG: Give a table saying how many filters there are for each dimension $d$ and each side length $M$ at each order $k$ and each parity $p$.
+HOGG: Give a table saying how many filters there are for each tuple of $(d,m,k',p')$.
+HOGG: Perhaps remind the reader that the code is available.
 \begin{figure}[tp]
   \begin{mdframed}
   \color{captiongray}
   \begin{center}
-\includegraphics[width=\textwidth]{notebooks/filter+0_2_3.png}\\
-\includegraphics[width=\textwidth]{notebooks/filter+1_2_3.png}\\
-\includegraphics[width=\textwidth]{notebooks/filter-1_2_3.png}
-\includegraphics[width=\textwidth]{notebooks/filter+2_2_3.png}\\
-\includegraphics[width=\textwidth]{notebooks/filter-2_2_3.png}
+\includegraphics[width=\textwidth]{notebooks/filter_2_3.png}
   \end{center}
 \caption{All the filters for $d=2$, $m=1$ ($M=3$).
-Notes: Scalars and pseudo-scalars are shown with signed colors; where there is no symbol in the box the value is zero. The $2$-$p'$-tensor filters are shown via the action of the tensor on an image of a letter ``R''; the transformation properties of the $2$-$p'$-filters are such that these filters may not look obviously invariant to rotations but they are.
-There are no invariant pseudoscalar filters available at $(d,m) = (2,1)$.
-Three of the $2$-$0$-tensors are duplicates of the $0$-$0$-tensor filters but multiplied by the identity tensor.\label{fig:filters23}}
+Notes: Scalars and pseudo-scalars are shown with signed colors; where there is no symbol in the box the value is zero. The $2$-$p'$-tensor filters are shown via the action of the tensor on an image of a letter ``R''; the transformation properties of the $2$-$p'$-filters are such that these filters may not look obviously invariant to rotations, but they are.
+There are no invariant pseudoscalar ($0$-$1$-tensor) filters available at $(d,m) = (2,1)$.
+Three of the $2$-$0$-tensors are duplicates of the $0$-$0$-tensor (scalar) filters but multiplied by the identity tensor; there is only one non-trivial invariant $2$-$0$-tensor filter.
+We don't show the $k'$-$p'$-filters at $k'>2$ because we don't know how to visualize them (even the $k'=2$ case is sketchy).\label{fig:filters23}}
   \end{mdframed}
 \end{figure}
 \begin{figure}[tp]
   \begin{mdframed}
   \color{captiongray}
   \begin{center}
-\includegraphics[width=\textwidth]{notebooks/filter+0_2_5.png}\\
-\includegraphics[width=\textwidth]{notebooks/filter-0_2_5.png}\\
-\includegraphics[width=\textwidth]{notebooks/filter+1_2_5.png}\\
-\includegraphics[width=\textwidth]{notebooks/filter-1_2_5.png}
+\includegraphics[width=\textwidth]{notebooks/filter_2_5.png}
   \end{center}
 \caption{All the filters for $d=2$, $m=2$ ($M=5$).
 Notes: Symbols and colors as in \figref{fig:filters23}.
