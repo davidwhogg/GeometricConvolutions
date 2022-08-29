@@ -99,10 +99,10 @@ class ktensor:
             nn = "scalar"
         if k == 1:
             nn = "vector"
-        if parity % 2 == 1:
+        if parity % 2 == 1 and k < 2:
             nn = "pseudo" + nn
         if k > 1:
-            nn = "${}$-".format(k) + nn
+            nn = "${}$-${}$-".format(k, parity) + nn
         return nn
 
     def __init__(self, data, parity, D):
@@ -538,13 +538,14 @@ def plot_nothing(ax):
     return
 
 def plot_filters(filters, names, n):
-    assert len(filters) <= n
-    bar = 10. # figure width in inches?
-    fig, axes = plt.subplots(1, n, figsize = (bar, 0.03 * bar + bar / n)) # magic
-    if n == 1:
-        axes = [axes, ]
-    plt.subplots_adjust(left=0.001, right=0.999, wspace=0.2/n,
-                        bottom=0.001, top=0.999-0.1, hspace=0)
+    m = max(1, np.ceil(len(filters) / n).astype(int))
+    assert len(filters) <= n * m
+    bar = 8. # figure width in inches?
+    fig, axes = plt.subplots(m, n, figsize = (bar, 1.15 * bar * m / n), # magic
+                             squeeze=False)
+    axes = axes.flatten()
+    plt.subplots_adjust(left=0.001/n, right=1-0.001/n, wspace=0.2/n,
+                        bottom=0.001/m, top=1-0.001/m-0.1/m, hspace=0.2/m)
     for i, (ff, name) in enumerate(zip(filters, names)):
         if ff.k == 0:
             plot_scalar_filter(ff, name, ax=axes[i])
@@ -552,7 +553,7 @@ def plot_filters(filters, names, n):
             plot_vector_filter(ff, name, ax=axes[i])
         if ff.k == 2:
             plot_tensor_filter(ff, name, ax=axes[i])
-    for i in range(len(filters), n):
+    for i in range(len(filters), n * m):
         plot_nothing(axes[i])
     return fig
 
