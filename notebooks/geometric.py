@@ -10,7 +10,8 @@ See the file `LICENSE` for more details.
 - David W. Hogg (NYU)
 
 ## To-do items:
-- Drop the k-tensor and geometric filter classes; there can be only one class.
+- Fix the norm() operations so they are makeable with index summations! Duh. sqrt(a_hij a_hij / d^(k-2)) maybe??
+- Drop the k-tensor and geometric filter classes; there can be only one class. Or have filter inherit from image with a few extras.
 - Move over to jax.
 - Make the geometric_filter inherit geometric_image to reduce repeated code.
 - Is it possible to make the data a big block (not a dictionary) but have the block addressable with keys()? I bet it is...?
