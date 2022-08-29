@@ -434,16 +434,15 @@ By Definition \ref{} we have
 where $a'=g\cdot a$. Therefore the convolution is equivariant if $g\cdot C(g^{-1} \cdot a') = C(a')$ for all $g\in B_d$ and all $a' \in [-m,m]^d$. 
 \end{proof}
 
-\paragraph{Numerical construction of invariant geometric convolution filters:}
-In the above we defined equivariant geometric operators acting on $d$-dimensional images on the $d$-torus.
-These, in turn, are constructed from products of the outputs of convolutions with invariant geometric filters.
-Here we show how to find all such filters by a group-averaging technique.
-
-Briefly, the idea is the following:
-We start with a set of independent $k'$-tensor (or $k'$-pseudotensor) convolution filters that span the space of all possible geometric convolution filters at side length $M$ ($M$ odd) and dimension $d$.
-There are typically $M^d\,d^{k'}$ independent filters in this set.
-We average the filters over all group operators $g\in B_d$, where $B_d$ is the group of 90-degree rotations and reflections.
-We perform a singular value decomposition of these group-averaged filters to find the $p$ independent orthogonal filters that span the space of equivariant $k'$-tensor (or $k'$-pseudotensor) convolution filters at side length $M=2\,m+1$ in $d$ dimensions.
+In practice, a complete set of invariant $k$-$p$-tensor filters (filters $C$ such that $g\cdot C(g^{-1} \cdot a') = C(a')$) can be found by group averaging.
+This works by building any set of linearly independent $k'$-$p'$-tensor filters (randomly or systematically), and then building, for each of these linearly independent filters $C$, a group-averaged filter $\bar{C}$ by
+\begin{equation}
+    \bar{C}(a') = \frac{1}{|B_d|}\,\sum_{g\in B_d} g\cdot C(g^{-1}\cdot a') ~,
+\end{equation}
+where $|B_d|$ is the number of group elements.
+The averaged filters are then reduced to an ``eigen-set'' of orthogonal filters by the singular value decomposition.
+In detail we started this averaging with a set of independent $k'$-$p'$-tensor convolution filters that span the space of all possible geometric convolution filters at side length $M$ ($M=2\,m+1$) and dimension $d$.
+There are $M^d\,d^{k'}$ independent filters in this set.
 The results of these operations are shown for $d=2$ and $m\in[1, 2]$ in \figref{fig:filters23} and \figref{fig:filters25}.
 HOGG: Give a table saying how many filters there are for each dimension $d$ and each side length $M$ at each order $k$ and each parity $p$.
 \begin{figure}[tp]
@@ -456,7 +455,10 @@ HOGG: Give a table saying how many filters there are for each dimension $d$ and 
 \includegraphics[width=\textwidth]{notebooks/filter+2_2_3.png}\\
 \includegraphics[width=\textwidth]{notebooks/filter-2_2_3.png}
   \end{center}
-\caption{All the filters for $d=2$, $m=1$ ($M=3$). HOGG: notes!\label{fig:filters23}}
+\caption{All the filters for $d=2$, $m=1$ ($M=3$).
+Notes: Scalars and pseudo-scalars are shown with signed colors; where there is no symbol in the box the value is zero. The $2$-$p'$-tensor filters are shown via the action of the tensor on an image of a letter ``R''; the transformation properties of the $2$-$p'$-filters are such that these filters may not look obviously invariant to rotations but they are.
+There are no invariant pseudoscalar filters available at $(d,m) = (2,1)$.
+Three of the $2$-$0$-tensors are duplicates of the $0$-$0$-tensor filters but multiplied by the identity tensor.\label{fig:filters23}}
   \end{mdframed}
 \end{figure}
 \begin{figure}[tp]
@@ -468,7 +470,9 @@ HOGG: Give a table saying how many filters there are for each dimension $d$ and 
 \includegraphics[width=\textwidth]{notebooks/filter+1_2_5.png}\\
 \includegraphics[width=\textwidth]{notebooks/filter-1_2_5.png}
   \end{center}
-\caption{All the filters for $d=2$, $m=2$ ($M=5$). HOGG: notes!\label{fig:filters25}}
+\caption{All the filters for $d=2$, $m=2$ ($M=5$).
+Notes: Symbols and colors as in \figref{fig:filters23}.
+We don't show the $2$-$p'$-tensor filters at $m=2$ because there are many of them.\label{fig:filters25}}
   \end{mdframed}
 \end{figure}
 
@@ -532,10 +536,20 @@ Now show contractions of products of the above on those images.
 
 Hello world
 
-There is a continuous set of symmetries that inspire the summation-notation rules. There are discrete symmetries that are exact for these square images. 
-One discussion point: you might be able to get back to a continuous symmetry group if you consider the image to be a VIEW of a large, continuous tensor field...?
+One of the strange aspects of this work is that there are two groups acting.
+One is a continuous group (the Euclidean group) of translations and rotations (and reflections).
+This group motivates the index summation rules and the other geometric operations in the functions we construct.
+The other group is a discrete group $G_d$ appropriate for $d$-cube lattices of points; it is a sub-group of the continuous group.
+This is the group we use to average the filters (to make invariant filters) and we use to define equivariance for functions of geometric images.
+There are other possible image representations---other than values in pixels---that might create more continuous concepts of images.
+For example, if the data are on the surface of the sphere (the sky, perhaps), it could be represented with tensor spherical harmonics, and be subject to transformations by a continuous rotation group.
 
-It is interesting that the convolution operations look (in many cases) very much like discrete versions of vector calculus operations, like div, grad, curl, and so on. That's interesting, and potentially useful.
+But if we think in terms of a physical, generative model for imaging: Usually an image is ``taken'' of a continuous world.
+That is, the kinds of geometric images we consider in this work would mainly be discretized views or samples of a larger, continuous world.
+That world is subject to transformations by continuous symmetries, maybe even gauge symmetries.
+It remains an open question how to think about how to use the operations and symmetries of these large, continuous groups that govern the world being viewed, when the data are only discrete, finite views of that world.
+
+HOGG: It is interesting that the convolution operations look (in many cases) very much like discrete versions of vector calculus operations, like div, grad, curl, and so on. That's interesting, and potentially useful.
 
 Note that we never take eigenvalues. But these are also real scalars in some cases.
 
