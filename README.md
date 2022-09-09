@@ -1,5 +1,5 @@
 # Geometric Convolutions
-group-equivariant convolutional deep learning
+a basis for building group-equivariant convolution-based nonlinear functions
 
 ## Authors
 - **David W. Hogg** (NYU) (MPIA) (Flatiron)
