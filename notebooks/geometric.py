@@ -541,7 +541,7 @@ def plot_filters(filters, names, n):
     m = max(1, np.ceil(len(filters) / n).astype(int))
     assert len(filters) <= n * m
     bar = 8. # figure width in inches?
-    fig, axes = plt.subplots(m, n, figsize = (bar, 1.15 * bar * m / n), # magic
+    fig, axes = plt.subplots(m, n, figsize = (bar, 1.2 * bar * m / n), # magic
                              squeeze=False)
     axes = axes.flatten()
     plt.subplots_adjust(left=0.001/n, right=1-0.001/n, wspace=0.2/n,
@@ -792,11 +792,11 @@ def plot_images(images):
       a LaTeX expression.
     """
     nim = len(images)
-    n = np.floor(np.sqrt(nim)).astype(int)
+    n = np.ceil(np.sqrt(nim)).astype(int)
     m = np.ceil(nim / n).astype(int)
     print(len(images), n, m)
     bar = 10. # inches?
-    fig, axes = plt.subplots(m, n, figsize = (bar, 0.2 * m + bar * m / n)) # magic
+    fig, axes = plt.subplots(m, n, figsize = (bar, 0.3 * m + bar * m / n)) # magic
     axes = np.atleast_1d(axes).flatten()
     plt.subplots_adjust(left=0.001, right=0.999, wspace=0.2/n,
                         bottom=0.001, top=0.999-0.07/m, hspace=0.2/m)
