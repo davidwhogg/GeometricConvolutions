@@ -5,10 +5,7 @@
 % - What are our GOALS!!?
 %   -- one option: this formulation can express all equivariant differential operators discretized to a cubical d-torus. 
 %   -- another option: can we produce a characterization of all equivariant functions (maybe based on invariants or these filters) that don't require the use of non-linearities.
-%   -- another option: emulate cosmological simulations.
-% - change N to N^3 in the appropriate locations; already done??
 % - Understand what functions can and cannot be expressed on this model 
-% - Extend it to non-linear maps (eg, by multiplications and contractions)
 % - Should we be representing images in fourier space? Ask Leslie!
 % - Understand the literature
 %   -- Discretized vector calculus and differential geometry.
@@ -19,28 +16,25 @@
 %  -- Define "local" functions, is there a characterization of functions that can be written as convolutions with small filters?
 % - There is a one-indexing and zero-indexing issue. Should we be consistent?
 % - Some definitions begin with "given" some with "let". Should we try to be more consistent?
-
-% -- if the size of the filter is large enough, are we universal???? or can we express all polynomial functions? is there a version of Stone-Weierstrass for this?
-% --- add the identity and levi civita in the possible output tensors
-% --- define reordering of the indices
+% add zeroth order monomials (constants, very few)
 % --- we don't need to be in the torus and we don't need to be square (or cubical)
-% --- generalize convolution to rectangular non-toroidal images
-
-
-%-- is it the same to do convolutions + products + convolutions + products 
-
-%-- a counting argument may tell us that all the linear functions that are equivariant  (Molien's formula)
 
 %-- BEN: compute Molien's formula for this (translations semidirect D_4) action
 % 1/|G|\sum_{g\in G} det(I-\phi(g)t)^{-1}
 
-% write the levi civita contraction
-% write the procedure of which we make all linear functions from k tensor images to k' tensor images of the same size. 
-% do we include a pooling move?
+% SOLEDAD: audit the levi civita contraction
+%GIVE THE METHOD A NAME AND RUN THE NAME THROUGH THE DOCUMENT
+%reformat the monomial figures to look like equations
+%visualize the group $B_d$ at d=2
+%make an introduction figure showing examples of geometric filters
 
-% how do we enumerate all tensor functions
+% - HOGG: Change the aspect ratios of the figures so they can be put into talk slides :)
 
-% 1, 6, 22, 49, 87 d=3, n=1,3,7,9 (11N^2-24N+21)/8
+%pixel positions in images are 1-0-tensors and they transform as 1-0-tensors
+
+%change the notation from k-p to k_p
+%should we use the upper index notation??
+%t
 
 \documentclass{article}
 \usepackage[utf8]{inputenc}
@@ -66,6 +60,12 @@
   shadowcolor=black!05,
   shadowsize=4pt
 }
+\newenvironment{hoggfigure}{%
+  \begin{figure}[tp]%
+    \begin{mdframed}%
+    \color{captiongray}}{%
+    \end{mdframed}%
+  \end{figure}}
 
 % theorem, definition and so on
 \theoremstyle{plain}
@@ -124,10 +124,49 @@ The framework permits, with a very simple adjustment, restriction to function sp
 Contemporary natural science teems with data sets that are images or lattices or grids of geometric objects.
 These might be observations of intensities (scalars), magnetic fields (pseudovectors), or polarizations (2-tensors) on a surface or in a volume.
 Or they might be the inputs or outputs of a simulation, in which the initial conditions or fields are specified on a regular grid.
+For examples, see \figref{fig:examples} and the caption thereto.
 Any lattice or grid of vectors or tensors can be seen as a generalization of the concept of an image, in which the intensity in each pixel is replaced with a geometric object (scalar, vector, pseudovector, tensor) in each pixel.
 These objects are \emph{geometric} in the sense that they are defined in terms of their transformation properties under geometric operators such as rotation, translation, and reflection.
 Thus there is a need for machine learning methods designed for \emph{geometric images}---lattices or grids of scalars, vectors, and tensors.
-There are already countless applications of machine learning in contexts in which the input data are geometric images, including examples in essentially all natural-science disciplines (for example, CITE).
+There are already countless applications of machine learning in contexts in which the input data are geometric images, including examples in essentially all natural-science disciplines (HOGG CITE THINGS).
+\begin{hoggfigure}
+  \begin{center}
+    \begin{minipage}[b]{2.5in}\noindent%
+      \includegraphics[width=\textwidth]{jpegPIA18916.jpeg}\\
+      \textsl{(a)} temperature and polarization
+    \end{minipage}
+    \begin{minipage}[b]{2in}\noindent%
+      \includegraphics[width=\textwidth]{key_figures_197.pdf}\\
+      \textsl{(b)} salinity and current
+    \end{minipage}\\[2ex]
+    \begin{minipage}[b]{2.5in}\noindent%
+      \includegraphics[width=\textwidth]{applsci-09-02108-g001.png}\\
+      \textsl{(c)} temperature
+    \end{minipage}
+    \begin{minipage}[b]{1.8in}\noindent%
+      \includegraphics[width=\textwidth]{The-distribution-of-the-modified-potential-vorticity-at-the-850-K-potential-temperature.png}\\
+      \textsl{(d)} vorticity
+    \end{minipage}\\[2ex]
+    \begin{minipage}[b]{1.9in}\noindent%
+      \includegraphics[width=\textwidth]{FbAjqkkWAAANqFc.jpeg}\\
+      \textsl{(e)} intensity and polarization
+    \end{minipage}
+    ~~\begin{minipage}[b]{2.5in}\noindent%
+      \includegraphics[width=\textwidth]{41524.pdf}\\[1ex]
+      \textsl{(f)} stress tensor
+    \end{minipage}
+  \end{center}
+  \caption{Examples of geometric images in the natural sciences.
+  \textsl{(a)}~A visualization of a temperature map and a polarization map from the ESA \textsl{Planck} Mission \cite{planck}.
+  The color map shows a temperature field (a scalar or 0-0-tensor) on the sphere, and the whiskers show the principal eigenvector direction of a 2-0-tensor field in two dimensions.
+  In detail the underlying data are represented on a pixel grid (healpixel \cite{healpix}) on the sphere.
+  \textsl{(b)}~Some other stuff from \url{https://climatedataguide.ucar.edu/climate-data/godas-ncep-global-ocean-data-assimilation-system} HOGG EXPLAIN AND CITE.
+  \textsl{(c)}~Some other stuff from \url{https://www.mdpi.com/2076-3417/9/10/2108/htm} HOGG EXPLAIN AND CITE.
+  \textsl{(d)}~From \url{https://www.researchgate.net/figure/The-distribution-of-the-modified-potential-vorticity-at-the-850-K-potential-temperature_fig3_26635879}.
+  \textsl{(e)}~Ask Jordy Davelaar (and thank him).
+  \textsl{(f)}~From \url{https://www.nature.com/articles/s41524-019-0234-8}.
+  \label{fig:examples}}
+\end{hoggfigure}
 
 %For a concrete example close to one of our hearts (DWH's), contemporary cosmological n-body simulations comprise the most computationally expensive part of most contemporary cosmological projects, missions, and experiments (CITE THINGS).
 %For this reason, accurate, fast emulators might be of enormous economic and scientific value.
@@ -191,7 +230,7 @@ The orthogonal group $O(d)$ can act on $v \in \mathbb R^d$ in the following ways
 \end{align}
 where $g\in O(d)$, $M(g)\in \mathbb R^{d\times d}$ is the standard matrix representation of $g$, and $p\in\{0,1\}$ is the parity of the action. If $p=0$ we obtain the standard $O(d)$ action on $\mathbb R^d$ \emph{vectors}. If $p=1$ we obtain what in physics is commonly known as the action of $O(d)$ on \emph{pseudovectors}. In this context the objects are defined by the actions that they carry.
 
-\begin{definition}[$k$-$p$-tensors] \label{def.tensors}
+\begin{definition}[$k$-$p$-tensors]\label{def.tensors}
 We say that $v\in \mathbb R^d$ is a 1-$p$-tensor if $O(d)$ acts on $v$ via the action \eqref{eq.action}. 
 If $v_i$ is a 1-$p_i$-tensor then $T:=v_{1}\otimes\ldots \otimes v_k$ is a rank-1 $k$-$p$-tensor, where $p=\sum_{i=1}^k p_i \mod 2$ and the action of $O(d)$ is defined as
 \begin{align}
@@ -202,6 +241,7 @@ Higher rank $k$-$p$-tensors are defined as linear combinations of rank-1  $k$-$p
 Typically we would make the parity $p$ be a bit (either 0 for even parity or 1 for odd parity) but in principle it can be any integer.
 
 We note that in physics the 1-0-tensors are known as \emph{vectors}, the 1-1-tensors are known as \emph{pseudovectors}, the 0-0-tensors are known as \emph{scalars}, 0-1-tensors are known as \emph{pseudoscalars}, the $k$-1-tensors with $k\geq 2$ are known as \emph{pseudotensors}, and finally the $k$-0-tensors with $k\geq 2$ are the things that are commonly known as \emph{tensors}.
+In general, any $k$-$p$-tensor $a$ can be written as a sum of outer products of order-$1$ ($k=1$) tensors (vectors and pseudovectors), where each term in the sum is an outer product of $k$ order-$1$ tensors and the parity $p$ is the sum of the parities of the input order-$1$ tensors (mod 2, perhaps).
 
 \begin{definition}[summation notation]
 In this notation, tensor products are written in component form, and repeated indices are summed over.
@@ -239,7 +279,6 @@ These outer products can be contracted down to lower-$k$ tensors using Kronecker
 If $a$ is a $k$-$p$-tensor and $b$ is a $k'$-$p'$-tensor, then the outer product $a\otimes b$ is a $(k+k')$-$(p+p')$-tensor with $[a\otimes b]_{i_1,\ldots,i_{k+k'}} = [a]_{i_1,\ldots,i_k}\,[b]_{i_{k+1},\ldots,i_{k+k'}}$.
 \end{definition}
 
-SOLE: If the next definition is going to use ``the torus'' then we should say a few words about that up-front, or above in the image definition.
 
 \begin{definition}[geometric convolution]
 Let $A$ be a $k$-$p$-tensor image on the $d$-torus with side length $N$.
@@ -250,7 +289,7 @@ The geometric convolution $A\ast C$ is a $(k+k')$-$(p+p')$-tensor image such tha
 \end{equation}
 where $\bar\i - \bar a$ is the translation of $\bar\i$ by $\bar a$ on the $d$-torus pixel grid $(\mathbb Z / N\mathbb Z)^d$.
 \end{definition}
-This definition is on the torus. If you are not on the torus, just pad the image out with zero tensors of the corresponding order and parity. 
+This definition is on the torus. If you the image is not on the torus, we can pad the image out with zero tensors of the corresponding order and parity. 
 
 Convolutions can be followed by Kronecker contractions, Levi-Civita contractions and index permutations.
 The Kronecker delta ($\delta_{ij}$) is the object with two indices $ij$ such that it has the value $+1$ when the two indices have the same value ($i=j$), and $0$ otherwise.
@@ -348,10 +387,10 @@ Now to construct all degree-2 monomials that produce a $k'$-$p'$-tensor image of
     \item By the rules in \secref{sec:convolution}, construct any linear function that takes this image outer product as input and produces a $k'$-$p'$-tensor image of side length $N'$ as output.
 \end{enumerate}
 
-We conjecture that these rules will generate all possible second-degree monomial functions of the input image (SOLE SUBJECT TO SOME CONDITIONS) that meet the output requirements. A polynomial function of degree 2 can be constructed by linear combinations of these second-degree monomial functions along with all the linear functions that also produce $k'$-$p'$-tensor images of side length $N'$ (plus perhaps constant images).
+We conjecture that these rules will generate all possible second-degree monomial functions of the input image as long as the filter size is sufficiently large (BEN, is this correct?). A polynomial function of degree 2 can be constructed by linear combinations of these second-degree monomial functions along with all the linear functions that also produce $k'$-$p'$-tensor images of side length $N'$ (plus perhaps constant images).
 Higher-degree monomials and polynomials can be made out of products of lower-degree monomials, by generalization of the above.
 
-SOLE: THIS PARAGRAPH OR THESE IDEAS GO ELSEWHERE, I THINK.
+
 The geometric convolutions of \secref{sec:convolution} are local linear operators that take as input geometric images, and produce as output geometric images.
 They are local in the sense that, at every pixel $\bar\i$ of the output image $(A\ast C)$, the convolution only makes use of the pixels of $A$ within a small neighborhood of of $\bar\i$.
 Because tensors can be multiplied together using the outer product, and contracted according to the tensor contractions defined in \secref{sec:convolution}, it is possible, by multiplication, to construct a family of \emph{nonlinear} local geometric operators that take as input geometric images and produce as output geometric images.
@@ -359,13 +398,19 @@ This family of nonlinear local operators will be equivariant to the group $G_d$ 
 
 \section{Equivariant functions of geometric images}\label{sec:equivariant}
 
-Introduce the discrete group. Why discrete? SOLE: SEE TEXT BELOW FOR DEFINITIONS.
+Convolutional filters are widely used in machine learning for scalar images. The fundamental property of these operators are that they are translation equivariant, and that every translation equivariant linear function can be expressed as a convolution with a fixed filter (as long as the filter can be set to be as large as the image). The same property holds for geometry images.
 
-Define equivariance.
+\begin{theorem}
+A function $f:\mathcal A_{N,d,k,p}\to A_{N,d, k'', p''}$ is a linear translation equivariant linear function if and only if it is the convolution with a geometric filter $k'$-$p'$-tensor filter $C$ with possibly sidelength $N$, where $k+k'=k''$ and $p+p'=p''$.
+\end{theorem}
 
-Prove translation invariance.
+\begin{proof}
+TO DO.
+\end{proof}
 
-Prove things about invariant filters and equivariant linear functions.
+In addition to translation symmetries, we want to consider other natural symmetries occurring in the application domains where vectors and tensors arise. Ideally we would like to apply continuous rotations to the images, but their discretized nature makes it challenging. Recent work has proposed an approach to approximate continuous symmetries \cite{} that require interpolating and cropping the images. Here, for simplicity we focus on discrete rotations as in \cite{}, and we extend the group action to the geometric objects in the images.
+
+
 
 \begin{definition}[Group $B_d$ of symmetries of a $d$-hypercube]
 We denote by $B_d$ the group of rotation and reflection symmetries of the $d$-dimensional hypercube.
@@ -373,14 +418,7 @@ We denote by $B_d$ the group of rotation and reflection symmetries of the $d$-di
 
 Notes about the group $B_d$: In $d=2$ there are $8$ group elements, in $d=3$ there are $48$ group elements (and in $d=4$ there are 384). Because the groups $B_d$ are subgroups of $O(d)$, all determinants of the matrix representations of the group elements are either $+1$ or $-1$, and the matrix representation $M(g^{-1})$ of the inverse $g^{-1}$ of group element $g$ is the transpose of the matrix representation $M(g)$ of group element $g$.
 
-\begin{definition}[Action of $B_d$ on $k$-$p$-tensors]
-\begin{align}
-g\cdot(v_1 \otimes \ldots \otimes v_k) &= \det(g)^p\,(g\cdot v_1)\otimes\ldots\otimes(g\cdot v_k)
-\end{align}
-And extend linearly
-\end{definition}
-
-This may seem familiar: The $k$-tensor and $k$-pseudotensor were defined by how they transform under the orthogonal group $O(d)$, and our group $B_d$ is a subgroup of the orthogonal group.
+Not that the action of $B_d$ is a subgroup of $O(d)$, therefore the action of $B_d$ on $k$-$p$-tensors is the restriction of the action in Definition \ref{def.tensors} to the subgroup.
 
 \begin{definition}[Action of $B_d$ on $k$-tensor images]
 Given a $k$-tensor image $A$ on the $d$-torus, and a group element $g\in B_d$, the action $g\cdot A$ produces a $k$-tensor image on the $d$-torus such that
@@ -435,12 +473,12 @@ where $a'=g\cdot a$. Therefore the convolution is equivariant if $g\cdot C(g^{-1
 \end{proof}
 
 In practice, a complete set of invariant $k'$-$p'$-tensor filters (filters $C$ such that $g\cdot C(g^{-1} \cdot a') = C(a')$) can be found by group averaging.
-This works by building any set of linearly independent $k'$-$p'$-tensor filters (randomly or systematically), and then building, for each of these linearly independent filters $C$, a group-averaged filter $\bar{C}$ by
+This works by, for each setting of order $k'$ and parity $p'$, building a collection of linearly independent $k'$-$p'$-tensor filters (randomly or systematically), and then building, for each of these linearly independent filters $C$, a group-averaged filter $\bar{C}$ by
 \begin{equation}
     \bar{C}(a') = \frac{1}{|B_d|}\,\sum_{g\in B_d} g\cdot C(g^{-1}\cdot a') ~,
 \end{equation}
 where $|B_d|$ is the number of group elements (8 for $d=2$ and 27 for $d=3$).
-In detail we took a systematic (not random) approach that initialized the averaging with a set of independent $k'$-$p'$-tensor convolution filters that span the space of all possible geometric convolution filters at side length $M$ ($M=2\,m+1$) and dimension $d$.
+In detail we took a systematic (not random) approach that, for each setting of $(k',p')$, initialized the averaging with a set of independent $k'$-$p'$-tensor convolution filters that span the space of all possible geometric convolution filters at side length $M$ ($M=2\,m+1$) and dimension $d$.
 There are $M^d\,d^{k'}$ independent filters in this initial set.
 The averaged filters are then reduced to an ``eigen-set'' of orthogonal, non-zero filters by the singular-value decomposition.
 The singular-value decomposition reduces the number of filters dramatically.
@@ -449,30 +487,34 @@ In detail we normalized to get unit tensor norms in the non-zero pixels.
 The results of these operations are shown for $d=2$ and $m\in[1, 2]$ in \figref{fig:filters23} and \figref{fig:filters25}.
 HOGG: Give a table saying how many filters there are for each tuple of $(d,m,k',p')$.
 HOGG: Perhaps remind the reader that the code is available.
-\begin{figure}[tp]
-  \begin{mdframed}
-  \color{captiongray}
+\begin{hoggfigure}
   \begin{center}
 \includegraphics[width=\textwidth]{notebooks/filter_2_3.png}
   \end{center}
-\caption{All the filters for $d=2$, $m=1$ ($M=3$).
+\caption{All the filters for $d=2$, $m=1$ ($M=3$), $k'\in [0,1,2]$.
 Notes: Scalars and pseudo-scalars are shown with signed colors; where there is no symbol in the box the value is zero. The $2$-$p'$-tensor filters are shown via the action of the tensor on an image of a letter ``R''; the transformation properties of the $2$-$p'$-filters are such that these filters may not look obviously invariant to rotations, but they are.
 There are no invariant pseudoscalar ($0$-$1$-tensor) filters available at $(d,m) = (2,1)$.
 Three of the $2$-$0$-tensors are duplicates of the $0$-$0$-tensor (scalar) filters but multiplied by the identity tensor; there is only one non-trivial invariant $2$-$0$-tensor filter.
-We don't show the $k'$-$p'$-filters at $k'>2$ because we don't know how to visualize them (even the $k'=2$ case is sketchy).\label{fig:filters23}}
-  \end{mdframed}
-\end{figure}
-\begin{figure}[tp]
-  \begin{mdframed}
-  \color{captiongray}
+We don't show the $k'$-$p'$-filters at $k'>2$ because we don't know how to visualize them (even the $k'=2$ case is sketchy).
+Note that the vector ($1$-$0$-tensor) filters look like pure divergence and the pseudovector ($1$-$1$-tensor) filters look like pure curl.\label{fig:filters23}}
+\end{hoggfigure}
+\begin{hoggfigure}
   \begin{center}
 \includegraphics[width=\textwidth]{notebooks/filter_2_5.png}
   \end{center}
-\caption{All the filters for $d=2$, $m=2$ ($M=5$).
+\caption{All the filters for $d=2$, $m=2$ ($M=5$), $k'\in [0,1]$.
 Notes: Symbols and colors as in \figref{fig:filters23}.
-We don't show the $2$-$p'$-tensor filters at $m=2$ because there are many of them.\label{fig:filters25}}
-  \end{mdframed}
-\end{figure}
+We don't show the $2$-$p'$-tensor filters at $m=2$ because there are many of them.
+At $(d,m)=(2,2)$ a pseudoscalar filter appears.
+Again, the vector and pseudovectors look like pure divergence and pure curl, respectively.\label{fig:filters25}}
+\end{hoggfigure}
+
+Define equivariance.
+
+Prove translation invariance.
+
+Prove things about invariant filters and equivariant linear functions.
+
 
 \section{Expressive power of nonlinear convolution-based functions}\label{sec:universality}
 
@@ -493,28 +535,20 @@ How do we make the linear functions? See \secref{sec:convolution}.
 Now show some fake-data geometric images and show the action of the $d=2$, $M=3$ filters on those images.
 
 What do they look like? Like calculus operators! See figures.
-\begin{figure}
-  \begin{mdframed}
-  \color{captiongray}
+\begin{hoggfigure}
   \begin{center}
     \includegraphics[width=\textwidth]{notebooks/monomials_1.png}
   \end{center}
-    \caption{A scalar image $s$ and convolutions with four chosen filters.}
-  \end{mdframed}
-\end{figure}
+  \caption{A scalar image $s$ and convolutions with four chosen filters.}
+\end{hoggfigure}
 
 Now show contractions of products of the above on those images.
-
-\begin{figure}
-  \begin{mdframed}
-  \color{captiongray}
+\begin{hoggfigure}
   \begin{center}
     \includegraphics[width=\textwidth]{notebooks/monomials_2.png}
   \end{center}
-    \caption{All unconvolved second-degree monomials of $s$, given four chosen filters. For the 2-tensor outputs (order $k=2$), we traced them back to scalars.}
-  \end{mdframed}
-\end{figure}
-
+  \caption{All unconvolved second-degree monomials of $s$, given four chosen filters. For the 2-tensor outputs (order $k=2$), we traced them back to scalars.}
+\end{hoggfigure}
 
 \begin{itemize}
     \item find the invariant geometric filters
@@ -553,8 +587,13 @@ Note that we never take eigenvalues. But these are also real scalars in some cas
 
 Note that $k$-$1$-tensor (pseudo) filters only exist for certain triples of $(d, m, k)$.
 
+We could have added the determinant operation and eigenvalues.....
+
 \paragraph{Acknowlegements:}
-It is a pleasure to thank Teresa Huang (JHU) and Kate Storey-Fisher (NYU) for valuable discussions.
+It is a pleasure to thank
+Leslie Greengard (Flatiron),
+Teresa Huang (JHU), and
+Kate Storey-Fisher (NYU) for valuable discussions.
 This project made use of Python~3 \cite{python3}, numpy \cite{numpy}, matplotlib \cite{matplotlib}, and cmastro \cite{cmastro}.
 All code used for making the data and figures in this paper are available at \url{https://github.com/davidwhogg/GeometricConvolutions}.
 
